@@ -12,7 +12,8 @@ import {
   IconButton,
   FormHelperText,
   CircularProgress,
-  Divider
+  Divider,
+  Alert
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
@@ -38,6 +39,7 @@ const RegisterPage: React.FC = () => {
   });
   
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [googleLoading, setGoogleLoading] = useState(false);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -80,12 +82,33 @@ const RegisterPage: React.FC = () => {
     
     setLoading(true);
     setError(null);
+    setSuccess(null);
 
     try {
-      await register(registerData);
-      navigate('/profile');
+      const response = await register(registerData);
+      
+      if (response.statusCode === 201) {
+        // Registration successful but might require email verification
+        setSuccess(response.message || t('registrationSuccessful'));
+        
+        // Check if we need to wait for verification or can proceed
+        if (response.data?.status === 'pending_verification') {
+          // Stay on the page and show verification message
+        } else {
+          // If auto-verified or no verification needed, redirect
+          setTimeout(() => {
+            navigate('/profile');
+          }, 2000);
+        }
+      } else {
+        // Handle unexpected response format
+        setError(response.message || t('registrationFailed'));
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || t('registrationFailed'));
+      // Extract error message from API response or use default message
+      const errorMessage = err.response?.data?.message || t('registrationFailed');
+      setError(errorMessage);
+      console.error('Registration error:', err);
     } finally {
       setLoading(false);
     }
@@ -128,6 +151,12 @@ const RegisterPage: React.FC = () => {
               {t('createAccount')}
             </Typography>
           </Box>
+
+          {success && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              {success}
+            </Alert>
+          )}
 
           <Box sx={{ mb: 2 }}>
             <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
@@ -243,7 +272,7 @@ const RegisterPage: React.FC = () => {
               type="submit"
               fullWidth
               variant="contained"
-              disabled={loading || googleLoading}
+              disabled={loading || googleLoading || !!success}
               sx={{ mt: 3, mb: 2, py: 1.2 }}
             >
               {loading ? (

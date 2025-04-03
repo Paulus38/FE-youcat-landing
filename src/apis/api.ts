@@ -21,16 +21,16 @@ api.interceptors.request.use(
 );
 
 export const authApi = {
-  login: (email: string, password: string) => {
-    return api.post('/auth/login', { email, password });
+  login: (username: string, password: string) => {
+    return api.post('/sign-in', { username, password });
   },
   
-  register: (name: string, email: string, password: string) => {
-    return api.post('/auth/register', { name, email, password });
+  register: (userData: { username: string, email: string, password: string, name: string }) => {
+    return api.post('/sign-up', userData);
   },
   
   googleLogin: (accessToken: string) => {
-    return api.post('/auth/google', { token: accessToken });
+    return api.post('/auth/candidate/google/login', { credential: accessToken });
   },
   
   logout: () => {
@@ -38,11 +38,11 @@ export const authApi = {
   },
   
   getProfile: () => {
-    return api.get('/auth/profile');
+    return api.get('/user/profile');
   },
   
   updateProfile: (userData: any) => {
-    return api.put('/auth/profile', userData);
+    return api.put('/user/profile', userData);
   },
 };
 

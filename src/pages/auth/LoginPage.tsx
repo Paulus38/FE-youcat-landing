@@ -57,10 +57,17 @@ const LoginPage: React.FC = () => {
     setError(null);
 
     try {
-      await login(loginData.username, loginData.password);
-      navigate('/profile');
+      const response = await login(loginData.username, loginData.password);
+      
+      if (response.statusCode === 200) {
+        navigate('/profile');
+      } else {
+        setError(response.message || t('loginFailed'));
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || t('loginFailed'));
+      const errorMessage = err.response?.data?.message || t('loginFailed');
+      setError(errorMessage);
+      console.error('Login error:', err);
     } finally {
       setLoading(false);
     }

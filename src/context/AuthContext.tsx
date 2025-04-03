@@ -100,12 +100,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const token = authService.getToken();
       setAccessToken(token);
       
-      // Basic user info after login - we'll fetch full profile separately
-      setUser({
-        username
-      });
+      // Set user data from response
+      if (response.data && response.data.username) {
+        setUser({
+          username: response.data.username,
+          // Add any other available user data
+        });
+      }
       
-      // Try to fetch user profile to get more details including image
+      // Try to fetch user profile to get more details
       if (token) {
         try {
           // Fetch profile data using the actual API endpoint
@@ -150,41 +153,45 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await authService.signup(userData);
       
-      setIsAuthenticated(true);
-      const token = authService.getToken();
-      setAccessToken(token);
-      
-      // Set initial user data
-      setUser({
-        username: userData.username,
-        name: userData.name,
-        email: userData.email
-      });
-      
-      // Try to fetch user profile to get complete details
-      if (token) {
-        try {
-          // Fetch profile data using the actual API endpoint
-          const profileResponse = await fetch(`${API_BASE_URL || ''}/user/profile`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-          
-          if (profileResponse.ok) {
-            const responseData = await profileResponse.json();
-            const profileData = responseData.data;
-            
-            setUser({
-              id: profileData.id,
-              username: profileData.username,
-              name: profileData.Candidate?.name || profileData.username,
-              email: profileData.Candidate?.email || '',
-              image: profileData.Candidate?.image || null
+      // Only set authentication if we get tokens back immediately
+      // For email verification flows, the user may not be authenticated yet
+      if (response.data?.auth?.accessToken) {
+        setIsAuthenticated(true);
+        const token = authService.getToken();
+        setAccessToken(token);
+        
+        // Set initial user data
+        setUser({
+          username: userData.username,
+          name: userData.name,
+          email: userData.email
+        });
+        
+        // Try to fetch user profile to get complete details if authenticated
+        if (token) {
+          try {
+            // Fetch profile data using the actual API endpoint
+            const profileResponse = await fetch(`${API_BASE_URL || ''}/user/profile`, {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
             });
+            
+            if (profileResponse.ok) {
+              const responseData = await profileResponse.json();
+              const profileData = responseData.data;
+              
+              setUser({
+                id: profileData.id,
+                username: profileData.username,
+                name: profileData.Candidate?.name || profileData.username,
+                email: profileData.Candidate?.email || '',
+                image: profileData.Candidate?.image || null
+              });
+            }
+          } catch (profileError) {
+            console.error('Failed to fetch user profile after registration:', profileError);
           }
-        } catch (profileError) {
-          console.error('Failed to fetch user profile after registration:', profileError);
         }
       }
       

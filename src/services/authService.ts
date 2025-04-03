@@ -14,12 +14,30 @@ export interface RegisterPayload {
   email: string;
 }
 
+export interface SignUpPayload {
+  username: string;
+  email: string;
+  password: string;
+  name: string;
+}
+
+export interface GoogleLoginData {
+  credential: string;
+}
+
 export interface AuthResponse {
   statusCode: number;
   message: string;
   data: {
     accessToken: string;
     refreshToken: string;
+    user?: {
+      id: string;
+      email: string;
+      username: string;
+      name: string;
+      avatar?: string;
+    }
   }
 }
 
@@ -45,17 +63,31 @@ const clearTokens = () => {
   localStorage.removeItem(REFRESH_TOKEN_KEY);
 };
 
+// Helper function to handle API errors
+const handleError = (error: any): Error => {
+  if (error.response) {
+    // Server responded with error
+    return new Error(error.response.data.message || 'An error occurred');
+  } else if (error.request) {
+    // Request made but no response
+    return new Error('No response from server');
+  } else {
+    // Error in request setup
+    return new Error('Error setting up request');
+  }
+};
+
 export const authService = {
   // Sign in with username and password
   signin: async (payload: LoginPayload) => {
     try {
-      const response = await axios.post<AuthResponse>(
-        `${API_BASE_URL}/auth/login`, 
+      const response = await axios.post(
+        `${API_BASE_URL}/auth/sign-in`, 
         payload
       );
       
-      const { accessToken, refreshToken } = response.data.data;
-      setTokens(accessToken, refreshToken);
+      const { auth } = response.data.data;
+      setTokens(auth.accessToken, auth.refreshToken);
       
       return response.data;
     } catch (error: any) {
@@ -65,15 +97,27 @@ export const authService = {
   },
   
   // Register a new user
-  signup: async (payload: RegisterPayload) => {
+  signup: async (userData: RegisterPayload) => {
     try {
-      const response = await axios.post<AuthResponse>(
-        `${API_BASE_URL}/auth/register`, 
-        payload
+      // Convert the RegisterPayload to SignUpPayload format
+      const signUpPayload: SignUpPayload = {
+        username: userData.username,
+        email: userData.email,
+        password: userData.password,
+        name: userData.name
+      };
+      
+      const response = await axios.post(
+        `${API_BASE_URL}/auth/sign-up`, 
+        signUpPayload
       );
       
-      const { accessToken, refreshToken } = response.data.data;
-      setTokens(accessToken, refreshToken);
+      // For sign-up, we may not get tokens immediately as verification might be required
+      // The user will need to verify their email before getting tokens
+      if (response.data.data?.auth) {
+        const { accessToken, refreshToken } = response.data.data.auth;
+        setTokens(accessToken, refreshToken);
+      }
       
       return response.data;
     } catch (error: any) {
@@ -90,8 +134,10 @@ export const authService = {
         { credential }
       );
       
-      const { accessToken, refreshToken } = response.data.data;
-      setTokens(accessToken, refreshToken);
+      if (response.data.data.accessToken && response.data.data.refreshToken) {
+        const { accessToken, refreshToken } = response.data.data;
+        setTokens(accessToken, refreshToken);
+      }
       
       return response.data;
     } catch (error: any) {
@@ -118,13 +164,15 @@ export const authService = {
         throw new Error('No refresh token available');
       }
       
-      const response = await axios.post<AuthResponse>(
+      const response = await axios.post(
         `${API_BASE_URL}/auth/refresh-token`,
         { refreshToken }
       );
       
-      const { accessToken, refreshToken: newRefreshToken } = response.data.data;
-      setTokens(accessToken, newRefreshToken);
+      if (response.data.data.accessToken) {
+        const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+        setTokens(accessToken, newRefreshToken || refreshToken);
+      }
       
       return response.data;
     } catch (error) {

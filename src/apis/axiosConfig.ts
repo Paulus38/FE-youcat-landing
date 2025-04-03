@@ -14,7 +14,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     // Get token from localStorage
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('auth_token');
     
     // If token exists, add to headers
     if (token) {
@@ -42,7 +42,7 @@ axiosInstance.interceptors.response.use(
       
       try {
         // Get refresh token
-        const refreshToken = localStorage.getItem('refreshToken');
+        const refreshToken = localStorage.getItem('refresh_token');
         
         if (!refreshToken) {
           // No refresh token, logout user
