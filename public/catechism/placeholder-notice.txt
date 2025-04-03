@@ -1,0 +1,10 @@
+The following image files are needed for the catechism page:
+
+1. catechism-hero.jpg - A hero image for the top section showing a Catholic bible, catechism book, or teaching scene
+2. catechism-history.jpg - An image showing the historical development of the catechism (e.g., old books, Didache, documents)
+3. pillar-creed.jpg - An image representing the Creed/Faith pillar
+4. pillar-sacraments.jpg - An image representing the Sacraments
+5. pillar-moral.jpg - An image representing Moral Life
+6. pillar-prayer.jpg - An image representing Prayer
+
+Please replace this placeholder file with actual high-quality images to complete the page. 
