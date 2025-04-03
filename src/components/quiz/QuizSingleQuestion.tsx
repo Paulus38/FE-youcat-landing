@@ -37,7 +37,7 @@ const QuizSingleQuestion: React.FC<QuizSingleQuestionProps> = ({ questionId }) =
       setError(null);
       try {
         const response = await axios.get<QuizQuestionResponse>(
-          `http://localhost:8000/api/questions/${questionId}/quiz`
+          `${import.meta.env.VITE_API_URL}/questions/${questionId}/quiz`
         );
         
         if (response.data.statusCode === 200) {

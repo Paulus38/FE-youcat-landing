@@ -109,7 +109,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (token) {
         try {
           // Fetch profile data using the actual API endpoint
-          const profileResponse = await fetch(`${process.env.REACT_APP_API_URL || ''}/api/user/profile`, {
+          const profileResponse = await fetch(`${API_BASE_URL || ''}/user/profile`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -165,7 +165,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (token) {
         try {
           // Fetch profile data using the actual API endpoint
-          const profileResponse = await fetch(`${process.env.REACT_APP_API_URL || ''}/api/user/profile`, {
+          const profileResponse = await fetch(`${API_BASE_URL || ''}/user/profile`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }

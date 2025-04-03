@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_URL } from '../config';
+import { API_BASE_URL } from '../config/api';
 
 export interface SignUpData {
   email: string;
@@ -30,11 +30,11 @@ export interface AuthResponse {
 }
 
 class AuthService {
-  private baseUrl = `${API_URL}/api/auth`;
+  private baseUrl = API_BASE_URL;
 
   async signUp(data: SignUpData): Promise<void> {
     try {
-      await axios.post(`${this.baseUrl}/sign-up`, data);
+      await axios.post(`${this.baseUrl}/auth/sign-up`, data);
     } catch (error) {
       throw this.handleError(error);
     }
@@ -42,7 +42,7 @@ class AuthService {
 
   async login(data: LoginData): Promise<AuthResponse> {
     try {
-      const response = await axios.post(`${this.baseUrl}/sign-in`, data);
+      const response = await axios.post(`${this.baseUrl}/auth/sign-in`, data);
       return response.data.data;
     } catch (error) {
       throw this.handleError(error);
@@ -51,7 +51,7 @@ class AuthService {
 
   async loginWithGoogle(data: GoogleLoginData): Promise<AuthResponse> {
     try {
-      const response = await axios.post(`${this.baseUrl}/candidate/google/login`, data);
+      const response = await axios.post(`${this.baseUrl}/auth/candidate/google/login`, data);
       return response.data.data;
     } catch (error) {
       throw this.handleError(error);
@@ -60,7 +60,7 @@ class AuthService {
 
   async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
     try {
-      const response = await axios.post(`${this.baseUrl}/refresh-token`, { refreshToken });
+      const response = await axios.post(`${this.baseUrl}/auth/refresh-token`, { refreshToken });
       return response.data.data;
     } catch (error) {
       throw this.handleError(error);
