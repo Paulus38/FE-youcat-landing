@@ -49,7 +49,7 @@ QuestionYoucat is an interactive quiz application that allows users to test thei
 
 3. Create a `.env` file in the root directory with the following variables:
    ```
-   VITE_API_URL=http://localhost:3000/api
+   VITE_API_URL=http://localhost:8000/api
    VITE_GOOGLE_CLIENT_ID=your_google_client_id
    ```
 
@@ -60,7 +60,7 @@ QuestionYoucat is an interactive quiz application that allows users to test thei
    yarn dev
    ```
 
-5. Open your browser and navigate to `http://localhost:5173`
+5. Open your browser and navigate to `http://localhost:3000`
 
 ## Project Structure
 

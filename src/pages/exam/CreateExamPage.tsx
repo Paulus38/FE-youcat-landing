@@ -71,7 +71,7 @@ const CreateExamPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   
   const [examSettings, setExamSettings] = useState<ExamSettings>({
-    title: 'My YOUCAT Quiz',
+    title: `Bài thi ${new Date().toLocaleDateString('vi-VN')}`,
     categoryIds: [],
     difficulty: 'mixed',
     questionCount: 10,
