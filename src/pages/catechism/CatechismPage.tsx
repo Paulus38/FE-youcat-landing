@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { 
   Container,
   Typography,
@@ -182,7 +182,7 @@ const CatechismPage: React.FC = () => {
                 <CardMedia
                   component="img"
                   height="140"
-                  image="/pillar-moral.jpg"
+                  image="/youcat/pillar-moral.jpg"
                   alt="Luân Lý"
                 />
                 <CardContent sx={{ flexGrow: 1 }}>
@@ -312,6 +312,74 @@ const CatechismPage: React.FC = () => {
                   Khai Tâm (Rửa Tội, Thêm Sức và Thánh Thể).
                 </Typography>
               </Paper>
+            </Grid>
+          </Grid>
+        </Box>
+        
+        {/* YOUCAT Section */}
+        <Box mb={8}>
+          <Typography variant="h4" component="h2" gutterBottom textAlign="center" color="primary.main">
+            YOUCAT - Giáo Lý Cho Giới Trẻ
+          </Typography>
+          <Typography variant="body1" paragraph align="center" sx={{ mb: 4 }}>
+            YOUCAT là phiên bản Giáo Lý Công Giáo được thiết kế đặc biệt cho giới trẻ, 
+            trình bày giáo lý với ngôn ngữ đơn giản, trực quan và gần gũi qua 527 câu hỏi-đáp.
+          </Typography>
+          
+          <Grid container spacing={4} alignItems="center">
+            <Grid item xs={12} md={6}>
+              <Box 
+                component="img"
+                src="/youcat/youcat-cover.jpg"
+                alt="Sách YOUCAT - Giáo Lý Công Giáo Cho Giới Trẻ"
+                sx={{
+                  width: '100%',
+                  height: 'auto',
+                  borderRadius: 2,
+                  boxShadow: 3
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography variant="h5" gutterBottom color="secondary.main">
+                Đặc Điểm Nổi Bật
+              </Typography>
+              <List>
+                <ListItem>
+                  <ListItemIcon>
+                    <CheckCircleIcon color="primary" />
+                  </ListItemIcon>
+                  <ListItemText primary="Ngôn ngữ đơn giản, dễ hiểu và gần gũi với giới trẻ" />
+                </ListItem>
+                <ListItem>
+                  <ListItemIcon>
+                    <CheckCircleIcon color="primary" />
+                  </ListItemIcon>
+                  <ListItemText primary="Định dạng hỏi-đáp trực quan với 527 câu hỏi" />
+                </ListItem>
+                <ListItem>
+                  <ListItemIcon>
+                    <CheckCircleIcon color="primary" />
+                  </ListItemIcon>
+                  <ListItemText primary="Thiết kế hấp dẫn với hình ảnh minh họa và trích dẫn" />
+                </ListItem>
+                <ListItem>
+                  <ListItemIcon>
+                    <CheckCircleIcon color="primary" />
+                  </ListItemIcon>
+                  <ListItemText primary="Đã được dịch sang hơn 72 ngôn ngữ trên toàn thế giới" />
+                </ListItem>
+              </List>
+              <Button 
+                variant="contained" 
+                color="primary" 
+                size="large"
+                component={Link}
+                to="/catechism/youcat"
+                sx={{ mt: 2 }}
+              >
+                Khám Phá YOUCAT
+              </Button>
             </Grid>
           </Grid>
         </Box>

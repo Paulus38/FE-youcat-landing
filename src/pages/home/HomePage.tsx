@@ -299,99 +299,108 @@ const HomePage: React.FC = () => {
       </Paper>
 
       {/* Features Section */}
-      <Container maxWidth="lg" sx={{ mb: 10 }}>
-        <Box textAlign="center" mb={8}>
-          <Typography 
-            variant="h3" 
-            component="h2" 
-            gutterBottom 
-            sx={{ 
-              color: theme.palette.primary.main,
-              fontWeight: 'bold',
-              position: 'relative',
-              display: 'inline-block',
-              '&::after': {
-                content: '""',
-                position: 'absolute',
-                width: '60%',
-                height: '4px',
-                background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                bottom: '-8px',
-                left: '20%',
-                borderRadius: '10px'
-              }
-            }}
-          >
-            {t('featuresTitle')}
-          </Typography>
-          <Typography 
-            variant="h6" 
-            color="text.secondary" 
-            sx={{ 
-              maxWidth: 700, 
-              mx: 'auto', 
-              mt: 4,
-              fontSize: '1.2rem'
-            }}
-          >
-            {t('featuresSubtitle')}
-          </Typography>
-        </Box>
+      <Container maxWidth="lg" sx={{ my: 8, position: 'relative', zIndex: 1 }}>
+        <Typography variant="h3" component="h2" gutterBottom align="center" fontWeight="bold">
+          {t('featuresTitle')}
+        </Typography>
+        <Typography variant="h6" component="p" align="center" color="text.secondary" sx={{ mb: 6 }}>
+          {t('featuresSubtitle')}
+        </Typography>
         
         <Grid container spacing={4}>
           {features.map((feature, index) => (
-            <Grid item xs={12} md={4} key={index} sx={{ display: 'flex' }}>
-              <Card 
-                sx={{ 
-                  height: '100%', 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  flex: 1,
-                  position: 'relative',
-                  overflow: 'visible',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: '-20px',
-                    left: '20px',
-                    width: '60px',
-                    height: '60px',
-                    borderRadius: '50%',
-                    backgroundColor: feature.color,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0 6px 16px rgba(0,0,0,0.15)',
-                    zIndex: 1
-                  }
-                }}
-              >
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    top: '-15px',
-                    left: '25px',
-                    zIndex: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
+            <Grid item xs={12} md={4} key={index}>
+              <StyledPaper elevation={3}>
+                <Box sx={{ mb: 2 }}>
                   {feature.icon}
                 </Box>
-                <CardContent sx={{ p: 4, pt: 5, flexGrow: 1, textAlign: 'center' }}>
-                  <Typography variant="h5" component="h3" fontWeight="bold" gutterBottom mt={3}>
-                    {t(feature.titleKey)}
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary" fontSize="1.1rem">
-                    {t(feature.descriptionKey)}
-                  </Typography>
-                </CardContent>
-              </Card>
+                <Typography variant="h5" component="h3" gutterBottom fontWeight="bold">
+                  {t(feature.titleKey)}
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  {t(feature.descriptionKey)}
+                </Typography>
+              </StyledPaper>
             </Grid>
           ))}
         </Grid>
       </Container>
+      
+      {/* YOUCAT Promotion Section */}
+      <Box sx={{ 
+        bgcolor: 'primary.light', 
+        py: 6, 
+        position: 'relative',
+        overflow: 'hidden',
+        my: 8 
+      }}>
+        {/* Decorative shapes */}
+        <Box
+          sx={{
+            position: 'absolute',
+            width: '200px',
+            height: '200px',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            top: '-50px',
+            left: '10%',
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            width: '150px',
+            height: '150px',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            bottom: '-30px',
+            right: '5%',
+          }}
+        />
+        
+        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
+          <Grid container spacing={4} alignItems="center">
+            <Grid item xs={12} md={5}>
+              <Box
+                component="img"
+                src="/youcat/youcat-cover.jpg"
+                alt="YOUCAT - Giáo Lý Công Giáo Cho Giới Trẻ"
+                sx={{
+                  width: '100%',
+                  maxWidth: 300,
+                  height: 'auto',
+                  display: 'block',
+                  mx: 'auto',
+                  borderRadius: 2,
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+                  transform: 'rotate(-3deg)'
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={7}>
+              <Typography variant="h3" component="h2" gutterBottom color="white" fontWeight="bold">
+                YOUCAT - Giáo Lý Cho Giới Trẻ
+              </Typography>
+              <Typography variant="h6" component="p" color="white" sx={{ mb: 2, opacity: 0.9 }}>
+                Khám phá YOUCAT - sách Giáo Lý Công Giáo được thiết kế đặc biệt cho người trẻ
+              </Typography>
+              <Typography variant="body1" color="white" paragraph sx={{ opacity: 0.8 }}>
+                YOUCAT trình bày giáo lý với ngôn ngữ đơn giản, trực quan qua 527 câu hỏi-đáp. Đã được dịch sang hơn 72 ngôn ngữ, cuốn sách giúp bạn hiểu sâu về đức tin Công Giáo với cách tiếp cận hiện đại và gần gũi.
+              </Typography>
+              <Button 
+                variant="contained" 
+                color="secondary" 
+                size="large"
+                component={Link}
+                to="/catechism/youcat"
+                sx={{ mt: 2 }}
+              >
+                Tìm Hiểu YOUCAT
+              </Button>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
 
       {/* Sample Questions Section */}
       <Container maxWidth="lg" sx={{ mb: 10 }}>

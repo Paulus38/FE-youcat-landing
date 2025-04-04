@@ -30,6 +30,7 @@ import TermsPage from '@pages/legal/TermsPage';
 import PrivacyPage from '@pages/legal/PrivacyPage';
 import NotFoundPage from '@pages/error/NotFoundPage';
 import CatechismPage from '@pages/catechism/CatechismPage';
+import YoucatPage from '@pages/catechism/YoucatPage';
 
 const App: React.FC = () => {
   return (
@@ -57,6 +58,7 @@ const App: React.FC = () => {
                     <Route path="single-question/:id" element={<QuizSingleQuestionPage />} />
                   </Route>
                   <Route path="catechism" element={<CatechismPage />} />
+                  <Route path="catechism/youcat" element={<YoucatPage />} />
                   <Route path="leaderboard" element={<LeaderboardPage />} />
                   <Route path="about" element={<AboutPage />} />
                   <Route path="contact" element={<ContactPage />} />
