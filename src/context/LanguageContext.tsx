@@ -1150,6 +1150,23 @@ const translations: Translations = {
     en: 'Answer Description',
     vi: 'Mô Tả Câu Trả Lời'
   },
+  // YOUCAT section translations
+  youcatTitle: {
+    en: 'YOUCAT - Catechism For Young People',
+    vi: 'YOUCAT - Giáo Lý Cho Giới Trẻ'
+  },
+  youcatSubtitle: {
+    en: 'Discover YOUCAT - the Catholic Catechism specifically designed for young people',
+    vi: 'Khám phá YOUCAT - sách Giáo Lý Công Giáo được thiết kế đặc biệt cho người trẻ'
+  },
+  youcatDescription: {
+    en: 'YOUCAT presents catechism in simple, visual language through 527 questions and answers. Translated into over 72 languages, this book helps you deeply understand the Catholic faith with a modern and approachable style.',
+    vi: 'YOUCAT trình bày giáo lý với ngôn ngữ đơn giản, trực quan qua 527 câu hỏi-đáp. Đã được dịch sang hơn 72 ngôn ngữ, cuốn sách giúp bạn hiểu sâu về đức tin Công Giáo với cách tiếp cận hiện đại và gần gũi.'
+  },
+  exploreYoucat: {
+    en: 'Explore YOUCAT',
+    vi: 'Tìm Hiểu YOUCAT'
+  },
 };
 
 interface LanguageContextType {

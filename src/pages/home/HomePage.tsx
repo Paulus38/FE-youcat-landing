@@ -379,13 +379,13 @@ const HomePage: React.FC = () => {
             </Grid>
             <Grid item xs={12} md={7}>
               <Typography variant="h3" component="h2" gutterBottom color="white" fontWeight="bold">
-                YOUCAT - Giáo Lý Cho Giới Trẻ
+                {t('youcatTitle')}
               </Typography>
               <Typography variant="h6" component="p" color="white" sx={{ mb: 2, opacity: 0.9 }}>
-                Khám phá YOUCAT - sách Giáo Lý Công Giáo được thiết kế đặc biệt cho người trẻ
+                {t('youcatSubtitle')}
               </Typography>
               <Typography variant="body1" color="white" paragraph sx={{ opacity: 0.8 }}>
-                YOUCAT trình bày giáo lý với ngôn ngữ đơn giản, trực quan qua 527 câu hỏi-đáp. Đã được dịch sang hơn 72 ngôn ngữ, cuốn sách giúp bạn hiểu sâu về đức tin Công Giáo với cách tiếp cận hiện đại và gần gũi.
+                {t('youcatDescription')}
               </Typography>
               <Button 
                 variant="contained" 
@@ -395,7 +395,7 @@ const HomePage: React.FC = () => {
                 to="/catechism/youcat"
                 sx={{ mt: 2 }}
               >
-                Tìm Hiểu YOUCAT
+                {t('exploreYoucat')}
               </Button>
             </Grid>
           </Grid>
