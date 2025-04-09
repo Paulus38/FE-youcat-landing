@@ -26,7 +26,8 @@ import {
   Logout as LogoutIcon,
   EmojiEvents as TrophyIcon,
   Stars as StarsIcon,
-  Book as BookIcon
+  Book as BookIcon,
+  History as HistoryIcon
 } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import LanguageSwitcher from '@components/LanguageSwitcher';
@@ -108,6 +109,12 @@ const MainLayout: React.FC = () => {
       icon: <BookIcon sx={{ color: theme.palette.success.main }} />, 
       path: '/catechism', 
       translationKey: 'catechism'
+    },
+    { 
+      text: 'Lịch sử giáo phận', 
+      icon: <HistoryIcon sx={{ color: theme.palette.info.dark }} />, 
+      path: '/diocese', 
+      translationKey: 'diocese'
     },
     { 
       text: t('leaderboard'), 

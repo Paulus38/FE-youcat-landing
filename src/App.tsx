@@ -31,6 +31,8 @@ import PrivacyPage from '@pages/legal/PrivacyPage';
 import NotFoundPage from '@pages/error/NotFoundPage';
 import CatechismPage from '@pages/catechism/CatechismPage';
 import YoucatPage from '@pages/catechism/YoucatPage';
+import DiocesePage from '@pages/diocese/DiocesePage';
+import PhuCuongDiocesePage from '@pages/diocese/PhuCuongDiocesePage';
 
 const App: React.FC = () => {
   return (
@@ -59,6 +61,10 @@ const App: React.FC = () => {
                   </Route>
                   <Route path="catechism" element={<CatechismPage />} />
                   <Route path="catechism/youcat" element={<YoucatPage />} />
+                  <Route path="diocese">
+                    <Route index element={<DiocesePage />} />
+                    <Route path="phu-cuong" element={<PhuCuongDiocesePage />} />
+                  </Route>
                   <Route path="leaderboard" element={<LeaderboardPage />} />
                   <Route path="about" element={<AboutPage />} />
                   <Route path="contact" element={<ContactPage />} />

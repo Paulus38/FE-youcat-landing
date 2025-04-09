@@ -264,7 +264,7 @@ const TakeExamPage: React.FC = () => {
       );
       
       // Navigate to results page with the result ID
-      navigate(`/exam/result/${examData.id}`);
+      navigate(`/exam/result/${examData.id}`, { state: { participantId: examData.ExamParticipants[0].id } });
     } catch (error) {
       console.error("Error submitting exam:", error);
       setError('Failed to submit your answers. Please try again.');
@@ -348,7 +348,7 @@ const TakeExamPage: React.FC = () => {
           }}
         >
           <Chip 
-            label={examData.Book.name} 
+            label={examData.Book?.name} 
             size="small" 
             color="primary" 
             variant="outlined"

@@ -45,6 +45,26 @@ export interface ExamResult {
   [key: string]: any;
 }
 
+// Interface for predefined exams
+export interface PredefinedExam {
+  id: number;
+  title: string;
+  description: string;
+  duration: number;
+  total_question: number;
+  difficulty: string;
+  ExamType: {
+    id: number;
+    name: string;
+  };
+}
+
+export interface PredefinedExamsResponse {
+  statusCode: number;
+  message: string;
+  data: PredefinedExam[];
+}
+
 // Create API instance with auth token and guest identifier
 const createApiInstance = () => {
   const token = authService.getToken();
@@ -88,6 +108,19 @@ const examService = {
       return response.data;
     } catch (error: any) {
       console.error('Create exam error:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+  
+  // Get predefined exams
+  getPredefinedExams: async () => {
+    const api = createApiInstance();
+    
+    try {
+      const response = await api.get<PredefinedExamsResponse>('/exam/type-3');
+      return response.data;
+    } catch (error: any) {
+      console.error('Get predefined exams error:', error.response?.data || error.message);
       throw error;
     }
   },
@@ -146,7 +179,7 @@ const examService = {
   },
   
   // Get exam result
-  getExamResult: async (resultId: string) => {
+  getExamResult: async (resultId: string, participantId: number) => {
     const api = createApiInstance();
     const token = authService.getToken();
     const guestId = Cookies.get(GUEST_IDENTIFIER_COOKIE);
@@ -155,8 +188,8 @@ const examService = {
       // Nếu đã login (có token), gọi API result thông thường
       // Nếu chưa login (không có token) và có guest_identifier, gọi API guest_result
       const endpoint = token 
-        ? `/exam/${resultId}/result` 
-        : `/exam/${resultId}/guest_result/${guestId}`;
+        ? `/exam/${resultId}/result?participant=${participantId}` 
+        : `/exam/${resultId}/guest_result/${guestId}?participant=${participantId}`;
       
       const response = await api.get(endpoint);
       return response.data;
@@ -188,6 +221,40 @@ const examService = {
       return response.data;
     } catch (error: any) {
       console.error('Get user exam results error:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+  
+  // Start a predefined exam for authenticated users
+  startAuthenticatedExam: async (examId: number) => {
+    const api = createApiInstance();
+    
+    try {
+      const response = await api.post('/exam_participant/start', { 
+        exam_id: examId 
+      });
+      return response.data;
+    } catch (error: any) {
+      console.error('Start authenticated exam error:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+  
+  // Start a predefined exam for guest users
+  startGuestExam: async (payload: { exam_id: number, guest_identifier?: string }) => {
+    const api = createApiInstance();
+    
+    try {
+      const response = await api.post('/exam_participant/guest/start', payload);
+      
+      // Store guest_identifier in cookie if present in response
+      if (response.data?.data?.guest_identifier) {
+        Cookies.set(GUEST_IDENTIFIER_COOKIE, response.data.data.guest_identifier, { expires: 7 });
+      }
+      
+      return response.data;
+    } catch (error: any) {
+      console.error('Start guest exam error:', error.response?.data || error.message);
       throw error;
     }
   }

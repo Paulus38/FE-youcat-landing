@@ -512,69 +512,133 @@ const translations: Translations = {
   },
   mixed: {
     en: 'Mixed',
-    vi: 'Hỗn hợp'
+    vi: 'Hỗn Hợp'
   },
   randomizeQuestionOrder: {
-    en: 'Randomize question order',
-    vi: 'Ngẫu nhiên thứ tự câu hỏi'
+    en: 'Randomize Question Order',
+    vi: 'Sắp Xếp Câu Hỏi Ngẫu Nhiên'
   },
   numberOfQuestions: {
     en: 'Number of Questions',
     vi: 'Số Lượng Câu Hỏi'
   },
   timePerQuestion: {
-    en: 'Time per Question',
-    vi: 'Thời Gian Mỗi Câu Hỏi'
+    en: 'Time per Question (minutes)',
+    vi: 'Thời Gian Cho Mỗi Câu Hỏi (phút)'
   },
-  minutes: {
+  minutesLabel: {
     en: 'minutes',
     vi: 'phút'
   },
-  continue: {
+  backButton: {
+    en: 'Back',
+    vi: 'Quay Lại'
+  },
+  continueButton: {
     en: 'Continue',
     vi: 'Tiếp Tục'
   },
+  startTestButton: {
+    en: 'Start Test',
+    vi: 'Bắt Đầu Kiểm Tra'
+  },
   reviewTestSettings: {
     en: 'Review Test Settings',
-    vi: 'Xem Lại Thiết Lập Bài Kiểm Tra'
-  },
-  allCategories: {
-    en: 'All Categories',
-    vi: 'Tất Cả Danh Mục'
-  },
-  difficulty: {
-    en: 'Difficulty',
-    vi: 'Độ Khó'
+    vi: 'Xem Lại Thiết Lập Kiểm Tra'
   },
   timeLimit: {
     en: 'Time Limit',
     vi: 'Giới Hạn Thời Gian'
   },
   timerWarning: {
-    en: 'Once you start the test, the timer will begin. You can\'t pause the test once it\'s started.',
-    vi: 'Khi bạn bắt đầu bài kiểm tra, đồng hồ sẽ chạy. Bạn không thể tạm dừng bài kiểm tra sau khi đã bắt đầu.'
+    en: 'The timer will start as soon as you begin the test. Make sure you have enough time to complete it.',
+    vi: 'Đồng hồ sẽ bắt đầu ngay khi bạn bắt đầu bài kiểm tra. Hãy đảm bảo bạn có đủ thời gian để hoàn thành nó.'
   },
-  back: {
-    en: 'Back',
-    vi: 'Quay Lại'
+  createYourPracticeTestHeading: {
+    en: 'Create Your Practice Test',
+    vi: 'Tạo Bài Kiểm Tra Thực Hành'
   },
-  startTest: {
-    en: 'Start Test',
-    vi: 'Bắt Đầu Kiểm Tra'
+  customizeYourQuizSubheading: {
+    en: 'Customize your quiz by selecting categories, difficulty, and number of questions',
+    vi: 'Tùy chỉnh bài kiểm tra của bạn bằng cách chọn danh mục, độ khó và số lượng câu hỏi'
+  },
+  createExamGuestMessage: {
+    en: 'You are creating this exam as a guest. Your results will not be saved to track your progress.',
+    vi: 'Bạn đang tạo bài kiểm tra này với tư cách khách. Kết quả của bạn sẽ không được lưu để theo dõi tiến độ.'
   },
   createExamGuest: {
-    en: 'You\'re creating a practice test as a guest. Sign in to save your results and track your progress.',
-    vi: 'Bạn đang tạo bài kiểm tra với tư cách khách. Đăng nhập để lưu kết quả và theo dõi tiến trình của bạn.'
+    en: 'You are creating this exam as a guest. Your results will not be saved.',
+    vi: 'Bạn đang tạo bài kiểm tra này với tư cách là khách. Kết quả của bạn sẽ không được lưu lại.'
   },
-  pleaseEnterTitle: {
-    en: 'Please enter a title for your exam',
-    vi: 'Vui lòng nhập tiêu đề cho bài kiểm tra của bạn'
+  examTypeStep: {
+    en: 'Exam Type',
+    vi: 'Loại Bài Kiểm Tra'
   },
-  pleaseSelectCategory: {
-    en: 'Please select at least one category',
-    vi: 'Vui lòng chọn ít nhất một danh mục'
+  examSettingsStep: {
+    en: 'Exam Settings',
+    vi: 'Thiết Lập Bài Kiểm Tra'
   },
-  failedToCreateExam: {
+  reviewConfirmStep: {
+    en: 'Review & Confirm',
+    vi: 'Xem Lại & Xác Nhận'
+  },
+  chooseExamTypeHeading: {
+    en: 'Choose Exam Type',
+    vi: 'Chọn Loại Bài Kiểm Tra'
+  },
+  predefinedExamOption: {
+    en: 'Predefined Exam',
+    vi: 'Bài Kiểm Tra Có Sẵn'
+  },
+  predefinedExamDesc: {
+    en: 'Select from a list of pre-created exams with specific topics and difficulty levels',
+    vi: 'Chọn từ danh sách các bài kiểm tra được tạo sẵn với các chủ đề và mức độ khó cụ thể'
+  },
+  customExamOption: {
+    en: 'Custom Exam',
+    vi: 'Bài Kiểm Tra Tùy Chỉnh'
+  },
+  customExamDesc: {
+    en: 'Create your own exam by selecting categories, difficulty, and other settings',
+    vi: 'Tạo bài kiểm tra của riêng bạn bằng cách chọn danh mục, mức độ khó và các thiết lập khác'
+  },
+  availableExamsHeading: {
+    en: 'Available Exams',
+    vi: 'Các Bài Kiểm Tra Có Sẵn'
+  },
+  noPredefinedExams: {
+    en: 'No predefined exams available at the moment.',
+    vi: 'Không có bài kiểm tra được tạo sẵn vào lúc này.'
+  },
+  questionsLabel: {
+    en: 'questions',
+    vi: 'câu hỏi'
+  },
+  allCategories: {
+    en: 'All Categories',
+    vi: 'Tất Cả Danh Mục'
+  },
+  examTitle: {
+    en: 'Exam',
+    vi: 'Bài Kiểm Tra'
+  },
+  pleaseSelectExamError: {
+    en: 'Please select a predefined exam to continue.',
+    vi: 'Vui lòng chọn một bài kiểm tra có sẵn để tiếp tục.'
+  },
+  pleaseEnterTitleError: {
+    en: 'Please enter a title for your exam.',
+    vi: 'Vui lòng nhập tiêu đề cho bài kiểm tra của bạn.'
+  },
+  pleaseSelectCategoryError: {
+    en: 'Please select at least one category.',
+    vi: 'Vui lòng chọn ít nhất một danh mục.'
+  },
+  failedToFetchExamsError: {
+    en: 'Failed to fetch predefined exams. Please try again.',
+    vi: 'Không thể tải các bài kiểm tra có sẵn. Vui lòng thử lại.'
+  },
+  failedToCreateExamError: {
     en: 'Failed to create exam. Please try again.',
     vi: 'Không thể tạo bài kiểm tra. Vui lòng thử lại.'
   },
@@ -1166,6 +1230,90 @@ const translations: Translations = {
   exploreYoucat: {
     en: 'Explore YOUCAT',
     vi: 'Tìm Hiểu YOUCAT'
+  },
+  generalCatechismCategory: {
+    en: 'General Catechism',
+    vi: 'Giáo Lý Chung'
+  },
+  theCreedCategory: {
+    en: 'The Creed',
+    vi: 'Kinh Tin Kính'
+  },
+  theSacramentsCategory: {
+    en: 'The Sacraments',
+    vi: 'Các Bí Tích'
+  },
+  tenCommandmentsCategory: {
+    en: 'The Ten Commandments',
+    vi: 'Mười Điều Răn'
+  },
+  prayerSpiritualityCategory: {
+    en: 'Prayer & Spirituality',
+    vi: 'Cầu Nguyện & Tâm Linh'
+  },
+  churchHistoryCategory: {
+    en: 'Church History',
+    vi: 'Lịch Sử Giáo Hội'
+  },
+  socialTeachingsCategory: {
+    en: 'Social Teachings',
+    vi: 'Giáo Huấn Xã Hội'
+  },
+  difficultyLevelLabel: {
+    en: 'Difficulty Level',
+    vi: 'Mức Độ Khó'
+  },
+  easyDifficulty: {
+    en: 'Easy',
+    vi: 'Dễ'
+  },
+  mediumDifficulty: {
+    en: 'Medium',
+    vi: 'Trung Bình'
+  },
+  hardDifficulty: {
+    en: 'Hard',
+    vi: 'Khó'
+  },
+  mixedDifficulty: {
+    en: 'Mixed',
+    vi: 'Hỗn Hợp'
+  },
+  randomizeQuestionOrderLabel: {
+    en: 'Randomize Question Order',
+    vi: 'Xáo Trộn Thứ Tự Câu Hỏi'
+  },
+  numberOfQuestionsLabel: {
+    en: 'Number of Questions',
+    vi: 'Số Lượng Câu Hỏi'
+  },
+  timePerQuestionLabel: {
+    en: 'Time per Question',
+    vi: 'Thời Gian Cho Mỗi Câu Hỏi'
+  },
+  reviewTestSettingsHeading: {
+    en: 'Review Test Settings',
+    vi: 'Xem Lại Thiết Lập Kiểm Tra'
+  },
+  timeLimitLabel: {
+    en: 'Time Limit',
+    vi: 'Giới Hạn Thời Gian'
+  },
+  categoriesLabel: {
+    en: 'Categories',
+    vi: 'Danh Mục'
+  },
+  timerWarningMessage: {
+    en: 'The timer will start as soon as you begin the test. Make sure you have enough time to complete it.',
+    vi: 'Đồng hồ sẽ bắt đầu ngay khi bạn bắt đầu bài kiểm tra. Hãy đảm bảo bạn có đủ thời gian để hoàn thành nó.'
+  },
+  testTitleLabel: {
+    en: 'Test Title',
+    vi: 'Tiêu Đề Bài Kiểm Tra'
+  },
+  selectCategoriesError: {
+    en: 'Please select at least one category',
+    vi: 'Vui lòng chọn ít nhất một danh mục'
   },
 };
 

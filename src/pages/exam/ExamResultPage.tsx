@@ -32,7 +32,7 @@ import {
   AccessTime as AccessTimeIcon,
   CheckCircle
 } from '@mui/icons-material';
-import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useParams, useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
 import examService from '@/services/examService';
 import { useAuth } from '@context/AuthContext';
 import { useLanguage } from '@context/LanguageContext';
@@ -55,7 +55,7 @@ interface ExamQuestion {
     id: number;
     name: string;
     description: string;
-    QuestionCategory: any;
+    QuestionCategory?: any;
   };
   ExamAnswers: ExamAnswer[];
 }
@@ -118,6 +118,7 @@ const ExamResultPage: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { resultId } = useParams<{ resultId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated } = useAuth();
   const { t } = useLanguage();
   
@@ -178,7 +179,7 @@ const ExamResultPage: React.FC = () => {
       return {
         id: eq.id,
         text: eq.content,
-        category: eq.Question.QuestionCategory ? eq.Question.QuestionCategory.name : apiData.Book.name,
+        category: eq.Question?.QuestionCategory ? eq.Question?.QuestionCategory?.name : apiData.Book?.name,
         options: eq.ExamAnswers.map(answer => ({
           id: answer.id,
           text: answer.content
@@ -213,7 +214,7 @@ const ExamResultPage: React.FC = () => {
           throw new Error('Result ID is missing');
         }
         
-        const response = await examService.getExamResult(resultId);
+        const response = await examService.getExamResult(resultId, location.state?.participantId);
         
         // Transform API response to match expected format
         const transformedResult = transformApiResponse(response);
