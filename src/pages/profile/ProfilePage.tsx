@@ -240,7 +240,7 @@ const ProfilePage: React.FC = () => {
     
     try {
       // Fetch detailed quiz result from API using examService
-      const result = await examService.getExamResult(activity.quizId);
+      const result = await examService.getExamResult(activity.quizId, activity.id);
       setDetailedResult(result.data);
     } catch (error) {
       console.error('Failed to load quiz result details:', error);
