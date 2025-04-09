@@ -111,12 +111,6 @@ const MainLayout: React.FC = () => {
       translationKey: 'catechism'
     },
     { 
-      text: 'Lịch sử giáo phận', 
-      icon: <HistoryIcon sx={{ color: theme.palette.info.dark }} />, 
-      path: '/diocese', 
-      translationKey: 'diocese'
-    },
-    { 
       text: t('leaderboard'), 
       icon: <TrophyIcon sx={{ color: theme.palette.warning.main }} />, 
       path: '/leaderboard', 
