@@ -36,6 +36,7 @@ import { useParams, useNavigate, Link as RouterLink, useLocation } from 'react-r
 import examService from '@/services/examService';
 import { useAuth } from '@context/AuthContext';
 import { useLanguage } from '@context/LanguageContext';
+import { useBuild } from '@context/BuildContext';
 
 // New interfaces that match the API response structure
 interface ExamAnswer {
@@ -121,6 +122,7 @@ const ExamResultPage: React.FC = () => {
   const location = useLocation();
   const { isAuthenticated } = useAuth();
   const { t } = useLanguage();
+  const { setIsBuilding } = useBuild();
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -208,6 +210,7 @@ const ExamResultPage: React.FC = () => {
   useEffect(() => {
     const fetchExamResult = async () => {
       try {
+        setIsBuilding(true);
         setLoading(true);
         
         if (!resultId) {
@@ -224,6 +227,7 @@ const ExamResultPage: React.FC = () => {
         setError('Failed to load result data. Please try again.');
       } finally {
         setLoading(false);
+        setIsBuilding(false);
       }
     };
     

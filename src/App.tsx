@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from '@context/AuthContext';
 import { LanguageProvider } from '@context/LanguageContext';
+import { BuildProvider } from '@context/BuildContext';
 import theme from '@theme/index';
 
 // Layouts
@@ -40,41 +41,43 @@ const App: React.FC = () => {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <LanguageProvider>
-          <Router>
-            <AuthProvider>
-              <Routes>
-                <Route path="/" element={<MainLayout />}>
-                  <Route index element={<HomePage />} />
-                  <Route path="auth/login" element={<LoginPage />} />
-                  <Route path="auth/register" element={<RegisterPage />} />
-                  <Route path="profile" element={<ProfilePage />} />
-                  <Route path="exam/create" element={<CreateExamPage />} />
-                  <Route path="exam/take/:examId" element={<TakeExamPage />} />
-                  <Route path="exam/result/:resultId" element={<ExamResultPage />} />
-                  <Route path="quiz">
-                    <Route index element={<QuizListPage />} />
-                    <Route path="create" element={<CreateQuizPage />} />
-                    <Route path="detail/:id" element={<QuizDetailPage />} />
-                    <Route path=":id/play" element={<QuizPlayPage />} />
-                    <Route path=":id/result" element={<QuizResultPage />} />
-                    <Route path="single-question/:id" element={<QuizSingleQuestionPage />} />
+          <BuildProvider>
+            <Router>
+              <AuthProvider>
+                <Routes>
+                  <Route path="/" element={<MainLayout />}>
+                    <Route index element={<HomePage />} />
+                    <Route path="auth/login" element={<LoginPage />} />
+                    <Route path="auth/register" element={<RegisterPage />} />
+                    <Route path="profile" element={<ProfilePage />} />
+                    <Route path="exam/create" element={<CreateExamPage />} />
+                    <Route path="exam/take/:examId" element={<TakeExamPage />} />
+                    <Route path="exam/result/:resultId" element={<ExamResultPage />} />
+                    <Route path="quiz">
+                      <Route index element={<QuizListPage />} />
+                      <Route path="create" element={<CreateQuizPage />} />
+                      <Route path="detail/:id" element={<QuizDetailPage />} />
+                      <Route path=":id/play" element={<QuizPlayPage />} />
+                      <Route path=":id/result" element={<QuizResultPage />} />
+                      <Route path="single-question/:id" element={<QuizSingleQuestionPage />} />
+                    </Route>
+                    <Route path="catechism" element={<CatechismPage />} />
+                    <Route path="catechism/youcat" element={<YoucatPage />} />
+                    <Route path="diocese">
+                      <Route index element={<DiocesePage />} />
+                      <Route path="phu-cuong" element={<PhuCuongDiocesePage />} />
+                    </Route>
+                    <Route path="leaderboard" element={<LeaderboardPage />} />
+                    <Route path="about" element={<AboutPage />} />
+                    <Route path="contact" element={<ContactPage />} />
+                    <Route path="terms" element={<TermsPage />} />
+                    <Route path="privacy" element={<PrivacyPage />} />
+                    <Route path="*" element={<NotFoundPage />} />
                   </Route>
-                  <Route path="catechism" element={<CatechismPage />} />
-                  <Route path="catechism/youcat" element={<YoucatPage />} />
-                  <Route path="diocese">
-                    <Route index element={<DiocesePage />} />
-                    <Route path="phu-cuong" element={<PhuCuongDiocesePage />} />
-                  </Route>
-                  <Route path="leaderboard" element={<LeaderboardPage />} />
-                  <Route path="about" element={<AboutPage />} />
-                  <Route path="contact" element={<ContactPage />} />
-                  <Route path="terms" element={<TermsPage />} />
-                  <Route path="privacy" element={<PrivacyPage />} />
-                  <Route path="*" element={<NotFoundPage />} />
-                </Route>
-              </Routes>
-            </AuthProvider>
-          </Router>
+                </Routes>
+              </AuthProvider>
+            </Router>
+          </BuildProvider>
         </LanguageProvider>
       </ThemeProvider>
     </GoogleOAuthProvider>

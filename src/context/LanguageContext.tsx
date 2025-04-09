@@ -1315,6 +1315,14 @@ const translations: Translations = {
     en: 'Please select at least one category',
     vi: 'Vui lòng chọn ít nhất một danh mục'
   },
+  systemBuilding: {
+    en: 'System is being built',
+    vi: 'Hệ thống đang được xây dựng'
+  },
+  pleaseWait: {
+    en: 'Please wait while we complete the process. You cannot perform any actions during this time.',
+    vi: 'Vui lòng đợi trong khi chúng tôi hoàn thành quá trình. Bạn không thể thực hiện bất kỳ thao tác nào trong thời gian này.'
+  },
 };
 
 interface LanguageContextType {
