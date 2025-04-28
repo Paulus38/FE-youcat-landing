@@ -15,7 +15,9 @@ import {
   ListItemIcon, 
   useMediaQuery, 
   useTheme,
-  Divider
+  Divider,
+  Menu,
+  MenuItem
 } from '@mui/material';
 import { 
   Menu as MenuIcon, 
@@ -130,31 +132,82 @@ const MainLayout: React.FC = () => {
     setDrawerOpen(false);
   };
 
+  // --- Dropdown for Catechism ---
+  const [catechismAnchorEl, setCatechismAnchorEl] = useState<null | HTMLElement>(null);
+  const handleCatechismMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setCatechismAnchorEl(event.currentTarget);
+  };
+  const handleCatechismMenuClose = () => {
+    setCatechismAnchorEl(null);
+  };
+
+  const catechismSubItems = [
+    { label: 'Toát Yếu Giáo Lý', path: '/catechism/toat-yeu' },
+    { label: 'Giáo Lý Công Giáo', path: '/catechism' },
+    { label: 'Youcat', path: '/catechism/youcat' },
+  ];
+
   const renderNavButtons = () => {
     return (
       <>
-        {menuItems.map((item) => (
-          (!item.requiresAuth || (item.requiresAuth && isAuthenticated)) && (
-            <Button 
-              key={item.translationKey}
-              color="inherit" 
-              component={Link} 
-              to={item.path}
-              sx={{ 
-                mr: 2, 
-                fontWeight: 'bold',
-                borderRadius: '20px',
-                px: 2,
-                '&:hover': {
-                  bgcolor: 'rgba(255,255,255,0.2)',
-                }
-              }}
-              startIcon={item.icon}
-            >
-              {item.text}
-            </Button>
-          )
-        ))}
+        {menuItems.map((item) => {
+          if (item.translationKey === 'catechism') {
+            return (
+              <React.Fragment key={item.translationKey}>
+                <Button
+                  color="inherit"
+                  sx={{ mr: 2, fontWeight: 'bold' }}
+                  onClick={handleCatechismMenuOpen}
+                  aria-controls={Boolean(catechismAnchorEl) ? 'catechism-menu' : undefined}
+                  aria-haspopup="true"
+                >
+                  {item.icon}
+                  <span style={{ marginLeft: 8 }}>{item.text}</span>
+                </Button>
+                <Menu
+                  id="catechism-menu"
+                  anchorEl={catechismAnchorEl}
+                  open={Boolean(catechismAnchorEl)}
+                  onClose={handleCatechismMenuClose}
+                  MenuListProps={{ 'aria-labelledby': 'catechism-button' }}
+                >
+                  {catechismSubItems.map((sub, idx) => (
+                    <MenuItem
+                      key={sub.path}
+                      component={Link}
+                      to={sub.path}
+                      onClick={handleCatechismMenuClose}
+                    >
+                      {sub.label}
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </React.Fragment>
+            );
+          }
+          return (
+            (!item.requiresAuth || (item.requiresAuth && isAuthenticated)) && (
+              <Button 
+                key={item.translationKey}
+                color="inherit" 
+                component={Link} 
+                to={item.path}
+                sx={{ 
+                  mr: 2, 
+                  fontWeight: 'bold',
+                  borderRadius: '20px',
+                  px: 2,
+                  '&:hover': {
+                    bgcolor: 'rgba(255,255,255,0.2)',
+                  }
+                }}
+                startIcon={item.icon}
+              >
+                {item.text}
+              </Button>
+            )
+          );
+        })}
       </>
     );
   };

@@ -31,7 +31,8 @@ import TermsPage from '@pages/legal/TermsPage';
 import PrivacyPage from '@pages/legal/PrivacyPage';
 import NotFoundPage from '@pages/error/NotFoundPage';
 import CatechismPage from '@pages/catechism/CatechismPage';
-import YoucatPage from '@pages/catechism/YoucatPage'; 
+import YoucatPage from '@pages/catechism/YoucatPage';
+import ToatYeuPage from '@pages/catechism/ToatYeuPage'; 
 
 const App: React.FC = () => {
   return (
@@ -61,6 +62,7 @@ const App: React.FC = () => {
                     </Route>
                     <Route path="catechism" element={<CatechismPage />} />
                     <Route path="catechism/youcat" element={<YoucatPage />} />
+                    <Route path="catechism/toat-yeu" element={<ToatYeuPage />} />
                     
                     <Route path="leaderboard" element={<LeaderboardPage />} />
                     <Route path="about" element={<AboutPage />} />

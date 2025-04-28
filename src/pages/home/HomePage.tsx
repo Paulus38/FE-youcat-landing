@@ -28,21 +28,17 @@ import {
 import { Link } from 'react-router-dom';
 import { 
   Quiz as QuizIcon, 
-  Person as PersonIcon, 
-  BarChart as BarChartIcon,
   ArrowForward as ArrowForwardIcon,
   EmojiEvents as TrophyIcon,
   School as SchoolIcon,
-  Stars as StarsIcon,
-  Colorize as ColorizeIcon,
-  Psychology as PsychologyIcon
+  Stars as StarsIcon
 } from '@mui/icons-material';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { questionApi } from '@apis/api';
 import { useLanguage } from '@context/LanguageContext';
 import { styled } from '@mui/material/styles';
 import TopPlayerAvatar from '../../components/home/TopPlayerAvatar';
+import ToatYeuIntroHome from '../../components/home/ToatYeuIntroHome';
 import { 
   mockTopPlayers, 
   TopPlayer, 
@@ -402,6 +398,9 @@ const HomePage: React.FC = () => {
         </Container>
       </Box>
 
+
+      {/* Toát yếu Giáo Lý Section */}
+      <ToatYeuIntroHome />
       {/* Sample Questions Section */}
       <Container maxWidth="lg" sx={{ mb: 10 }}>
         <Box textAlign="center" mb={6}>
