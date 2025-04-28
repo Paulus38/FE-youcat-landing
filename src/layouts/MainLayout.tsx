@@ -99,10 +99,10 @@ const MainLayout: React.FC = () => {
       translationKey: 'home'
     },
     { 
-      text: t('quizzes'), 
+      text: t('questionLibrary'), 
       icon: <QuizIcon sx={{ color: theme.palette.secondary.main }} />, 
       path: '/quiz', 
-      translationKey: 'quizzes'
+      translationKey: 'questionLibrary'
     },
     { 
       text: t('catechism'), 
@@ -213,7 +213,7 @@ const MainLayout: React.FC = () => {
           variant="contained" 
           color="secondary"
           component={Link} 
-          to="/auth/register"
+          to="/exam/create"
           startIcon={<StarsIcon />}
           sx={{ 
             ml: 2,
@@ -324,7 +324,7 @@ const MainLayout: React.FC = () => {
                 
                 <ListItem 
                   button 
-                  onClick={() => handleNavigation('/auth/register')}
+                  onClick={() => handleNavigation('/exam/create')}
                   sx={{ 
                     borderRadius: '10px',
                     bgcolor: theme.palette.primary.main,

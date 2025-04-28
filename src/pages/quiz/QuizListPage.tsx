@@ -387,8 +387,7 @@ const QuizListPage: React.FC = () => {
                   <em>{getTranslation('all')}</em>
                 </MenuItem>
                 <MenuItem value="1">Youcat</MenuItem>
-                <MenuItem value="2">Youcat Confession</MenuItem>
-                <MenuItem value="3">Youcat Prayer</MenuItem>
+                <MenuItem value="2">Toát yếu giáo lý</MenuItem>
               </Select>
             </FormControl>
           </Grid>

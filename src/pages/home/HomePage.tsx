@@ -229,7 +229,7 @@ const HomePage: React.FC = () => {
                     variant="contained" 
                     size="large"
                     component={Link}
-                    to="/auth/register"
+                    to="/quiz"
                     startIcon={<StarsIcon />}
                     sx={{ 
                       bgcolor: 'white', 
@@ -693,7 +693,7 @@ const HomePage: React.FC = () => {
                 variant="contained" 
                 size="large"
                 component={Link}
-                to="/auth/register"
+                to="/quiz"
                 endIcon={<ArrowForwardIcon />}
                 sx={{ 
                   bgcolor: 'white', 

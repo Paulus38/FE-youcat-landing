@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Avatar, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
 
 // Import all avatar images
 import avatar1 from '../../assets/images/avatar/avatar-1.webp';
@@ -83,9 +84,18 @@ const HeaderAvatarSection: React.FC<HeaderAvatarSectionProps> = ({
   const avatarSrc = user?.image ? 
     avatarList.find(avatar => avatar.id === user.image)?.src : 
     undefined;
-
+    const navigate = useNavigate();
+    const handleClick = () => {
+      navigate('/profile');
+    };
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <Box sx={{
+      display: 'flex',
+      alignItems: 'center',
+      cursor: 'pointer',
+      '&:hover': { bgcolor: theme.palette.action.hover }
+    }}
+    onClick={handleClick}>
       <Avatar 
         sx={{ 
           width: size, 

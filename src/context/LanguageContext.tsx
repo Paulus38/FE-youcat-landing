@@ -51,6 +51,34 @@ const translations: Translations = {
     en: 'Contact',
     vi: 'Liên Hệ'
   },
+  orLoginWith: {
+    en: 'Or login with',
+    vi: 'Hoặc đăng nhập với'
+  },
+  register: {
+    en: 'Register',
+    vi: 'Đăng Ký'
+  },
+  alreadyHaveAccount: {
+    en: 'Already have an account?',
+    vi: 'Đã Có Tài Khoản'
+  },
+  createAccount: {
+    en: 'Create Account',
+    vi: 'Tạo Tài Khoản'
+  },
+  confirmPassword: {
+    en: 'Confirm Password',
+    vi: 'Xác Nhận Mật Khẩu'
+  },
+  orRegisterWith: {
+    en: 'Or register with',
+    vi: 'Hoặc đăng ký với'
+  },
+  needAccount: {
+    en: 'Need an account?',
+    vi: 'Cần Tạo Tài Khoản'
+  },
   footerText: {
     en: 'Deepen Your Faith Through Learning!',
     vi: 'Đào Sâu Đức Tin Qua Học Hỏi!'
@@ -1116,6 +1144,10 @@ const translations: Translations = {
     en: 'Detail',
     vi: 'Chi Tiết'
   },
+  viewDetails: {
+    en: 'View Details',
+    vi: 'Xem Chi Tiết'
+  },
   noAnswerProvided: {
     en: 'No answer provided',
     vi: 'Chưa có câu trả lời'
@@ -1213,6 +1245,18 @@ const translations: Translations = {
   answerDescription: {
     en: 'Answer Description',
     vi: 'Mô Tả Câu Trả Lời'
+  },
+  answer: {
+    en: 'Answer',
+    vi: 'Câu Trả Lời'
+  },
+  description: {
+    en: 'Description',
+    vi: 'Mô Tả'
+  },
+  noDescription: {
+    en: 'No Description',
+    vi: 'Không có mô tả'
   },
   // YOUCAT section translations
   youcatTitle: {
