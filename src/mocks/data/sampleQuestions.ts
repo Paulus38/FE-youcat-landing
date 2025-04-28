@@ -1,4 +1,5 @@
 export interface QuizQuestion {
+  id?: string;
   question_name: string;
   answer_name: string;
 }

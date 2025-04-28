@@ -503,10 +503,10 @@ const HomePage: React.FC = () => {
                     <Button 
                       size="small" 
                       component={Link} 
-                      to="/quiz"
+                      to={`/quiz/detail/${question.id}`}
                       endIcon={<ArrowForwardIcon />}
                     >
-                      {t('moreQuestions')}
+                      {t('viewDetails')}
                     </Button>
                   </CardActions>
                 </Card>
