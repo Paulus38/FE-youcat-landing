@@ -31,19 +31,22 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemButton
+  ListItemButton,
 } from '@mui/material';
-import { 
-  Create as CreateIcon, 
-  Timer as TimerIcon, 
+import {
+  Create as CreateIcon,
+  Timer as TimerIcon,
   Category as CategoryIcon,
   Help as HelpIcon,
   ArrowForward as ArrowForwardIcon,
   ArrowBack as ArrowBackIcon,
-  Assignment as AssignmentIcon
+  Assignment as AssignmentIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
-import examService, { ExamSettings, PredefinedExam } from '@/services/examService';
+import examService, {
+  ExamSettings,
+  PredefinedExam,
+} from '@/services/examService';
 import { useAuth } from '@context/AuthContext';
 import { useLanguage } from '@context/LanguageContext';
 
@@ -66,6 +69,12 @@ const difficultyLevels = [
 
 type ExamMode = 'predefined' | 'custom';
 
+interface Book {
+  id: number;
+  name: string;
+  description: string | undefined;
+}
+
 const CreateExamPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -73,52 +82,86 @@ const CreateExamPage: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { t } = useLanguage();
-  
-  const steps = [t('examTypeStep'), t('examSettingsStep'), t('reviewConfirmStep')];
-  
+
+  const steps = [
+    t('examTypeStep'),
+    t('examSettingsStep'),
+    t('reviewConfirmStep'),
+  ];
+
   // Check URL query parameters
   const queryParams = new URLSearchParams(location.search);
   const fromDiocese = queryParams.get('from_diocese') === 'phu_cuong';
-  
+
   const [activeStep, setActiveStep] = useState(fromDiocese ? 2 : 0);
   const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [examMode, setExamMode] = useState<ExamMode>(fromDiocese ? 'custom' : 'custom');
-  const [selectedPredefinedExam, setSelectedPredefinedExam] = useState<number | null>(null);
+  const [examMode, setExamMode] = useState<ExamMode>(
+    fromDiocese ? 'custom' : 'custom'
+  );
+  const [selectedPredefinedExam, setSelectedPredefinedExam] = useState<
+    number | null
+  >(null);
   const [predefinedExams, setPredefinedExams] = useState<PredefinedExam[]>([]);
   const [fetchingExams, setFetchingExams] = useState(false);
-  
+  const [books, setBooks] = useState<Book[]>([]);
+  const [loadingBooks, setLoadingBooks] = useState(false);
+
   const [examSettings, setExamSettings] = useState<ExamSettings>({
-    title: fromDiocese ? `${t('examTitle')} - ${t('churchHistoryCategory')}` : `${t('examTitle')} ${new Date().toLocaleDateString()}`,
+    title: fromDiocese
+      ? `${t('examTitle')} - ${t('churchHistoryCategory')}`
+      : `${t('examTitle')} ${new Date().toLocaleDateString()}`,
     categoryIds: fromDiocese ? ['cat6'] : [],
     difficulty: 'mixed',
     questionCount: 10,
     timeLimit: 1,
-    randomOrder: true
+    randomOrder: true,
+    book_id: undefined,
   });
-  
-  // Fetch predefined exams when examMode changes to 'predefined'
+
+  useEffect(() => {
+    fetchBooks();
+  }, []);
+
   useEffect(() => {
     if (examMode === 'predefined' && predefinedExams.length === 0) {
       fetchPredefinedExams();
     }
   }, [examMode]);
-  
-  // Automatically go to final step when coming from diocese page
+
   useEffect(() => {
     if (fromDiocese) {
-      // Set predefined settings for church history exam
       setExamSettings({
         title: `${t('examTitle')} - ${t('churchHistoryCategory')}`,
-        categoryIds: ['cat6'], // Church History category
+        categoryIds: ['cat6'],
         difficulty: 'mixed',
         questionCount: 15,
         timeLimit: 2,
-        randomOrder: true
+        randomOrder: true,
       });
     }
   }, [fromDiocese, t]);
-  
+
+  const fetchBooks = async () => {
+    try {
+      setLoadingBooks(true);
+
+      const response = await examService.getBooks();
+      if (response.statusCode === 200) {
+        const arr = response.data.map((book) => ({
+          id: book.id,
+          name: book.name,
+          description: book.description,
+        }));
+        setBooks(arr);
+      }
+    } catch (error) {
+      console.error('Error fetching books:', error);
+    } finally {
+      setLoadingBooks(false);
+    }
+  };
+
   const fetchPredefinedExams = async () => {
     try {
       setFetchingExams(true);
@@ -131,10 +174,9 @@ const CreateExamPage: React.FC = () => {
       setFetchingExams(false);
     }
   };
-  
+
   const handleNext = () => {
     if (activeStep === 0) {
-      // Validate step 1
       if (!examMode) {
         setFormError(t('selectExamModeError'));
         return;
@@ -142,7 +184,6 @@ const CreateExamPage: React.FC = () => {
       setFormError('');
       setActiveStep(1);
     } else if (activeStep === 1) {
-      // Validate step 2
       if (examMode === 'custom' && examSettings.categoryIds.length === 0) {
         setFormError(t('selectCategoriesError'));
         return;
@@ -151,275 +192,303 @@ const CreateExamPage: React.FC = () => {
       setActiveStep(2);
     }
   };
-  
+
   const handleBack = () => {
-    // If we're on the review step (step 2) and using a predefined exam,
-    // we should go back to the exam type selection step (step 0)
     if (activeStep === 2 && examMode === 'predefined') {
       setActiveStep(0);
     } else {
       setActiveStep((prevStep) => prevStep - 1);
     }
   };
-  
+
   const handleCreateExam = async () => {
     try {
       setLoading(true);
       setFormError(null);
-      
+
       if (examMode === 'custom') {
-        // Original flow for custom exams
         const response = await examService.createExam(examSettings);
-        
-        // Get the exam ID
         const examId = response.data.id;
-        
-        // Get the exam participant ID
         const participantId = response.data.ExamParticipants?.[0]?.id;
-        
-        // Navigate to the exam taking page with participant ID if available
-        navigate(`/exam/take/${examId}${participantId ? `?participant_id=${participantId}` : ''}`);
+        navigate(
+          `/exam/take/${examId}${
+            participantId ? `?participant_id=${participantId}` : ''
+          }`
+        );
       } else if (examMode === 'predefined' && selectedPredefinedExam) {
-        // New flow for predefined exams
         let response;
         const examId = selectedPredefinedExam;
         const guestIdentifier = examService.getGuestIdentifier();
-        
+
         if (isAuthenticated) {
-          // For authenticated users
           response = await examService.startAuthenticatedExam(examId);
         } else {
-          // For guest users
-          const payload = guestIdentifier 
+          const payload = guestIdentifier
             ? { exam_id: examId, guest_identifier: guestIdentifier }
             : { exam_id: examId };
-          
+
           response = await examService.startGuestExam(payload);
         }
-        
-        // Get the participant ID from the response
+
         const participantId = response.data.id;
-        
-        // Navigate to the exam taking page with participant ID
         navigate(`/exam/take/${examId}?participant_id=${participantId}`);
       } else if (fromDiocese) {
-        // Handle the case for Phu Cuong diocese history exam
-        
-        // First create a custom exam
         const response = await examService.createExam(examSettings);
-        
-        // Get the exam ID
         const examId = response.data.id;
-        
-        // Get the participant ID
         const participantId = response.data.ExamParticipants?.[0]?.id;
-        
-        // Navigate to the exam taking page with participant ID if available
-        navigate(`/exam/take/${examId}${participantId ? `?participant_id=${participantId}` : ''}`);
+        navigate(
+          `/exam/take/${examId}${
+            participantId ? `?participant_id=${participantId}` : ''
+          }`
+        );
       }
     } catch (error: any) {
-      setFormError(error.response?.data?.message || t('failedToCreateExamError'));
+      setFormError(
+        error.response?.data?.message || t('failedToCreateExamError')
+      );
     } finally {
       setLoading(false);
     }
   };
-  
+
   const handleExamModeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setExamMode(event.target.value as ExamMode);
-    setSelectedPredefinedExam(null); // Reset selection when mode changes
+    setSelectedPredefinedExam(null);
   };
-  
+
   const handlePredefinedExamSelect = (examId: number) => {
     setSelectedPredefinedExam(examId);
   };
-  
+
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setExamSettings({ ...examSettings, title: event.target.value });
   };
-  
+
   const handleCategoryChange = (event: SelectChangeEvent<string[]>) => {
     const selectedCategories = event.target.value as string[];
     setExamSettings({ ...examSettings, categoryIds: selectedCategories });
   };
-  
+
   const handleDifficultyChange = (event: SelectChangeEvent) => {
-    setExamSettings({ 
-      ...examSettings, 
-      difficulty: event.target.value as 'easy' | 'medium' | 'hard' | 'mixed' 
+    setExamSettings({
+      ...examSettings,
+      difficulty: event.target.value as 'easy' | 'medium' | 'hard' | 'mixed',
     });
   };
-  
-  const handleQuestionCountChange = (_event: Event, newValue: number | number[]) => {
+
+  const handleQuestionCountChange = (
+    _event: Event,
+    newValue: number | number[]
+  ) => {
     setExamSettings({ ...examSettings, questionCount: newValue as number });
   };
-  
-  const handleTimeLimitChange = (_event: Event, newValue: number | number[]) => {
+
+  const handleTimeLimitChange = (
+    _event: Event,
+    newValue: number | number[]
+  ) => {
     setExamSettings({ ...examSettings, timeLimit: newValue as number });
   };
-  
-  const handleRandomOrderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+
+  const handleRandomOrderChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setExamSettings({ ...examSettings, randomOrder: event.target.checked });
   };
-  
+
+  const handleBookChange = (event: SelectChangeEvent<number | ''>) => {
+    const value = event.target.value;
+    setExamSettings({
+      ...examSettings,
+      book_id: value === '' ? undefined : Number(value),
+    });
+  };
+
   const getTotalTime = () => {
     if (examMode === 'predefined' && selectedPredefinedExam) {
-      const selectedExam = predefinedExams.find(exam => exam.id === selectedPredefinedExam);
+      const selectedExam = predefinedExams.find(
+        (exam) => exam.id === selectedPredefinedExam
+      );
       return selectedExam ? selectedExam.duration : 0;
     }
     return examSettings.timeLimit * examSettings.questionCount;
   };
-  
+
   const getExamTitle = () => {
     if (examMode === 'predefined' && selectedPredefinedExam) {
-      const selectedExam = predefinedExams.find(exam => exam.id === selectedPredefinedExam);
+      const selectedExam = predefinedExams.find(
+        (exam) => exam.id === selectedPredefinedExam
+      );
       return selectedExam ? selectedExam.title : '';
     }
     return examSettings.title;
   };
-  
+
   const getExamCategories = () => {
     if (examMode === 'predefined' && selectedPredefinedExam) {
       return t('allCategories');
     }
-    
-    return examSettings.categoryIds.length === 0 ? 
-      t('allCategories') : 
-      categoryOptions
-        .filter(cat => examSettings.categoryIds.includes(cat.id))
-        .map(cat => t(cat.name))
-        .join(', ');
+
+    return examSettings.categoryIds.length === 0
+      ? t('allCategories')
+      : categoryOptions
+          .filter((cat) => examSettings.categoryIds.includes(cat.id))
+          .map((cat) => t(cat.name))
+          .join(', ');
   };
-  
+
   const getExamDifficulty = () => {
     if (examMode === 'predefined' && selectedPredefinedExam) {
-      const selectedExam = predefinedExams.find(exam => exam.id === selectedPredefinedExam);
+      const selectedExam = predefinedExams.find(
+        (exam) => exam.id === selectedPredefinedExam
+      );
       return selectedExam ? t(selectedExam.difficulty.toLowerCase()) : '';
     }
     return t(examSettings.difficulty);
   };
-  
+
   const getExamQuestionCount = () => {
     if (examMode === 'predefined' && selectedPredefinedExam) {
-      const selectedExam = predefinedExams.find(exam => exam.id === selectedPredefinedExam);
+      const selectedExam = predefinedExams.find(
+        (exam) => exam.id === selectedPredefinedExam
+      );
       return selectedExam ? selectedExam.total_question : 0;
     }
     return examSettings.questionCount;
   };
-  
+
   const formatTime = (minutes: number) => {
     if (minutes < 60) {
       return `${minutes} ${t('minutesLabel')}`;
     }
-    
+
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
-    
+
     if (remainingMinutes === 0) {
       return `${hours} hour${hours > 1 ? 's' : ''}`;
     }
-    
-    return `${hours} hour${hours > 1 ? 's' : ''} ${remainingMinutes} ${t('minutesLabel')}`;
+
+    return `${hours} hour${hours > 1 ? 's' : ''} ${remainingMinutes} ${t(
+      'minutesLabel'
+    )}`;
   };
-  
+
   const renderStepContent = () => {
     switch (activeStep) {
       case 0:
-        // Step 1: Choose exam type
         return (
           <Box>
-            <Typography variant="h6" component="h2" gutterBottom sx={{ mb: 3 }}>
+            <Typography variant='h6' component='h2' gutterBottom sx={{ mb: 3 }}>
               {t('chooseExamTypeHeading')}
             </Typography>
-            
+
             <RadioGroup
               value={examMode}
               onChange={handleExamModeChange}
               sx={{ mb: 4 }}
             >
-              <FormControlLabel 
-                value="predefined" 
-                control={<Radio />} 
+              <FormControlLabel
+                value='predefined'
+                control={<Radio />}
                 label={
-                  <Typography variant="body1" fontWeight={500}>
+                  <Typography variant='body1' fontWeight={500}>
                     {t('predefinedExamOption')}
                   </Typography>
                 }
               />
               <Box sx={{ ml: 4, mb: 2 }}>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant='body2' color='text.secondary'>
                   {t('predefinedExamDesc')}
                 </Typography>
               </Box>
-              
-              <FormControlLabel 
-                value="custom" 
-                control={<Radio />} 
+
+              <FormControlLabel
+                value='custom'
+                control={<Radio />}
                 label={
-                  <Typography variant="body1" fontWeight={500}>
+                  <Typography variant='body1' fontWeight={500}>
                     {t('customExamOption')}
                   </Typography>
                 }
               />
               <Box sx={{ ml: 4 }}>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant='body2' color='text.secondary'>
                   {t('customExamDesc')}
                 </Typography>
               </Box>
             </RadioGroup>
-            
+
             {examMode === 'predefined' && (
               <Box>
-                <Typography variant="subtitle1" fontWeight={500} gutterBottom>
+                <Typography variant='subtitle1' fontWeight={500} gutterBottom>
                   {t('availableExamsHeading')}
                 </Typography>
-                
+
                 {fetchingExams ? (
-                  <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                  <Box
+                    sx={{ display: 'flex', justifyContent: 'center', py: 4 }}
+                  >
                     <CircularProgress />
                   </Box>
                 ) : predefinedExams.length === 0 ? (
-                  <Alert severity="info" sx={{ mb: 2 }}>
+                  <Alert severity='info' sx={{ mb: 2 }}>
                     {t('noPredefinedExamsMessage')}
                   </Alert>
                 ) : (
-                  <List sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                  <List
+                    sx={{
+                      bgcolor: 'background.paper',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      borderRadius: 1,
+                    }}
+                  >
                     {predefinedExams.map((exam) => (
-                      <ListItem 
-                        key={exam.id} 
+                      <ListItem
+                        key={exam.id}
                         disablePadding
-                        sx={{ 
-                          borderBottom: '1px solid', 
+                        sx={{
+                          borderBottom: '1px solid',
                           borderBottomColor: 'divider',
                           '&:last-child': {
-                            borderBottom: 'none'
-                          }
+                            borderBottom: 'none',
+                          },
                         }}
                       >
-                        <ListItemButton 
+                        <ListItemButton
                           selected={selectedPredefinedExam === exam.id}
                           onClick={() => handlePredefinedExamSelect(exam.id)}
-                          sx={{ 
+                          sx={{
                             py: 2,
                             '&.Mui-selected': {
                               bgcolor: 'primary.light',
                               '&:hover': {
                                 bgcolor: 'primary.light',
-                              }
-                            }
+                              },
+                            },
                           }}
                         >
                           <ListItemText
                             primary={exam.title}
                             secondary={
                               <React.Fragment>
-                                <Typography component="span" variant="body2" color="text.primary">
-                                  {exam.difficulty.toLowerCase() === 'easy' ? t('easyDifficulty') : 
-                                   exam.difficulty.toLowerCase() === 'medium' ? t('mediumDifficulty') : 
-                                   exam.difficulty.toLowerCase() === 'hard' ? t('hardDifficulty') : 
-                                   t('mixedDifficulty')} • 
-                                </Typography>
-                                {" "}
-                                {exam.total_question} {t('questionsLabel')} • {formatTime(exam.duration)}
+                                <Typography
+                                  component='span'
+                                  variant='body2'
+                                  color='text.primary'
+                                >
+                                  {exam.difficulty.toLowerCase() === 'easy'
+                                    ? t('easyDifficulty')
+                                    : exam.difficulty.toLowerCase() === 'medium'
+                                    ? t('mediumDifficulty')
+                                    : exam.difficulty.toLowerCase() === 'hard'
+                                    ? t('hardDifficulty')
+                                    : t('mixedDifficulty')}{' '}
+                                  •
+                                </Typography>{' '}
+                                {exam.total_question} {t('questionsLabel')} •{' '}
+                                {formatTime(exam.duration)}
                               </React.Fragment>
                             }
                           />
@@ -430,13 +499,13 @@ const CreateExamPage: React.FC = () => {
                 )}
               </Box>
             )}
-            
+
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4 }}>
               <Button
-                variant="contained"
+                variant='contained'
                 endIcon={<ArrowForwardIcon />}
                 onClick={handleNext}
-                size="large"
+                size='large'
                 disabled={examMode === 'predefined' && !selectedPredefinedExam}
               >
                 {t('continueButton')}
@@ -444,15 +513,13 @@ const CreateExamPage: React.FC = () => {
             </Box>
           </Box>
         );
-      
+
       case 1:
-        // Skip the custom settings step if using predefined exam
         if (examMode === 'predefined') {
-          handleNext(); // Auto advance to review step
+          handleNext();
           return <CircularProgress />;
         }
-        
-        // Step 2: Custom Exam Settings
+
         return (
           <Grid container spacing={3}>
             <Grid item xs={12}>
@@ -464,31 +531,70 @@ const CreateExamPage: React.FC = () => {
                 required
               />
             </Grid>
-            
+
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel id='book-label'>{t('bookLabel')}</InputLabel>
+                <Select
+                  labelId='book-label'
+                  value={examSettings.book_id || ''}
+                  onChange={handleBookChange}
+                  disabled={loadingBooks}
+                >
+                  <MenuItem value=''>
+                    <em>{t('allBooks')}</em>
+                  </MenuItem>
+                  {books.map((book) => (
+                    <MenuItem key={book.id} value={book.id}>
+                      {book.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {loadingBooks && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                    <CircularProgress size={20} sx={{ mr: 1 }} />
+                    <Typography variant='caption' color='text.secondary'>
+                      {t('loadingBooks')}
+                    </Typography>
+                  </Box>
+                )}
+              </FormControl>
+            </Grid>
+
             <Grid item xs={12}>
               <FormControl fullWidth required>
-                <InputLabel id="categories-label">{t('categoriesLabel')}</InputLabel>
+                <InputLabel id='categories-label'>
+                  {t('categoriesLabel')}
+                </InputLabel>
                 <Select
-                  labelId="categories-label"
+                  labelId='categories-label'
                   multiple
                   value={examSettings.categoryIds}
                   onChange={handleCategoryChange}
                   renderValue={(selected) => {
                     const selectedCategories = categoryOptions
-                      .filter(cat => selected.includes(cat.id))
-                      .map(cat => {
-                        switch(cat.name) {
-                          case 'generalCatechism': return t('generalCatechismCategory');
-                          case 'theCreed': return t('theCreedCategory');
-                          case 'theSacraments': return t('theSacramentsCategory');
-                          case 'tenCommandments': return t('tenCommandmentsCategory');
-                          case 'prayerSpirituality': return t('prayerSpiritualityCategory');
-                          case 'churchHistory': return t('churchHistoryCategory');
-                          case 'socialTeachings': return t('socialTeachingsCategory');
-                          default: return cat.name;
+                      .filter((cat) => selected.includes(cat.id))
+                      .map((cat) => {
+                        switch (cat.name) {
+                          case 'generalCatechism':
+                            return t('generalCatechismCategory');
+                          case 'theCreed':
+                            return t('theCreedCategory');
+                          case 'theSacraments':
+                            return t('theSacramentsCategory');
+                          case 'tenCommandments':
+                            return t('tenCommandmentsCategory');
+                          case 'prayerSpirituality':
+                            return t('prayerSpiritualityCategory');
+                          case 'churchHistory':
+                            return t('churchHistoryCategory');
+                          case 'socialTeachings':
+                            return t('socialTeachingsCategory');
+                          default:
+                            return cat.name;
                         }
                       });
-                    
+
                     return selectedCategories.join(', ');
                   }}
                 >
@@ -496,19 +602,28 @@ const CreateExamPage: React.FC = () => {
                     <MenuItem key={category.id} value={category.id}>
                       <FormControlLabel
                         control={
-                          <Checkbox 
-                            checked={examSettings.categoryIds.includes(category.id)} 
+                          <Checkbox
+                            checked={examSettings.categoryIds.includes(
+                              category.id
+                            )}
                           />
                         }
                         label={
-                          category.name === 'generalCatechism' ? t('generalCatechismCategory') :
-                          category.name === 'theCreed' ? t('theCreedCategory') :
-                          category.name === 'theSacraments' ? t('theSacramentsCategory') :
-                          category.name === 'tenCommandments' ? t('tenCommandmentsCategory') :
-                          category.name === 'prayerSpirituality' ? t('prayerSpiritualityCategory') :
-                          category.name === 'churchHistory' ? t('churchHistoryCategory') :
-                          category.name === 'socialTeachings' ? t('socialTeachingsCategory') :
-                          category.name
+                          category.name === 'generalCatechism'
+                            ? t('generalCatechismCategory')
+                            : category.name === 'theCreed'
+                            ? t('theCreedCategory')
+                            : category.name === 'theSacraments'
+                            ? t('theSacramentsCategory')
+                            : category.name === 'tenCommandments'
+                            ? t('tenCommandmentsCategory')
+                            : category.name === 'prayerSpirituality'
+                            ? t('prayerSpiritualityCategory')
+                            : category.name === 'churchHistory'
+                            ? t('churchHistoryCategory')
+                            : category.name === 'socialTeachings'
+                            ? t('socialTeachingsCategory')
+                            : category.name
                         }
                         sx={{ width: '100%' }}
                       />
@@ -517,161 +632,248 @@ const CreateExamPage: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            
+
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
-                <InputLabel id="difficulty-label">{t('difficultyLevelLabel')}</InputLabel>
+                <InputLabel id='difficulty-label'>
+                  {t('difficultyLevelLabel')}
+                </InputLabel>
                 <Select
-                  labelId="difficulty-label"
+                  labelId='difficulty-label'
                   value={examSettings.difficulty}
                   onChange={handleDifficultyChange}
                 >
                   {difficultyLevels.map((level) => (
                     <MenuItem key={level.value} value={level.value}>
-                      {level.value === 'easy' ? t('easyDifficulty') :
-                       level.value === 'medium' ? t('mediumDifficulty') :
-                       level.value === 'hard' ? t('hardDifficulty') :
-                       t('mixedDifficulty')}
+                      {level.value === 'easy'
+                        ? t('easyDifficulty')
+                        : level.value === 'medium'
+                        ? t('mediumDifficulty')
+                        : level.value === 'hard'
+                        ? t('hardDifficulty')
+                        : t('mixedDifficulty')}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
-            
+
             <Grid item xs={12} sm={6}>
               <FormControlLabel
                 control={
-                  <Checkbox 
-                    checked={examSettings.randomOrder} 
+                  <Checkbox
+                    checked={examSettings.randomOrder}
                     onChange={handleRandomOrderChange}
                   />
                 }
                 label={t('randomizeQuestionOrderLabel')}
               />
             </Grid>
-            
+
             <Grid item xs={12}>
-              <Typography id="question-count-slider" gutterBottom>
+              <Typography id='question-count-slider' gutterBottom>
                 {t('numberOfQuestionsLabel')}: {examSettings.questionCount}
               </Typography>
               <Slider
                 value={examSettings.questionCount}
                 onChange={handleQuestionCountChange}
-                aria-labelledby="question-count-slider"
-                valueLabelDisplay="auto"
+                aria-labelledby='question-count-slider'
+                valueLabelDisplay='auto'
                 step={5}
                 marks
                 min={5}
                 max={50}
               />
             </Grid>
-            
+
             <Grid item xs={12}>
-              <Typography id="time-limit-slider" gutterBottom>
-                {t('timePerQuestionLabel')}: {examSettings.timeLimit} {t('minutesLabel')}
+              <Typography id='time-limit-slider' gutterBottom>
+                {t('timePerQuestionLabel')}: {examSettings.timeLimit}{' '}
+                {t('minutesLabel')}
               </Typography>
               <Slider
                 value={examSettings.timeLimit}
                 onChange={handleTimeLimitChange}
-                aria-labelledby="time-limit-slider"
-                valueLabelDisplay="auto"
+                aria-labelledby='time-limit-slider'
+                valueLabelDisplay='auto'
                 step={1}
                 marks
                 min={1}
                 max={10}
               />
             </Grid>
-            
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+
+            <Grid
+              item
+              xs={12}
+              sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}
+            >
               <Button
-                variant="outlined"
+                variant='outlined'
                 startIcon={<ArrowBackIcon />}
                 onClick={handleBack}
                 disabled={loading}
               >
                 {t('backButton')}
               </Button>
-              
+
               <Button
-                variant="contained"
+                variant='contained'
                 endIcon={<ArrowForwardIcon />}
                 onClick={handleNext}
-                size="large"
+                size='large'
               >
                 {t('continueButton')}
               </Button>
             </Grid>
           </Grid>
         );
-      
+
       case 2:
-        // Step 3: Review & Confirm
         return (
           <Box>
-            <Typography variant="h6" component="h2" gutterBottom sx={{ mb: 3 }}>
+            <Typography variant='h6' component='h2' gutterBottom sx={{ mb: 3 }}>
               {t('reviewTestSettingsHeading')}
             </Typography>
-            
+
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <Card sx={{ borderRadius: 2, boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
+                <Card
+                  sx={{
+                    borderRadius: 2,
+                    boxShadow: 'none',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                  }}
+                >
                   <CardContent>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                       <CreateIcon sx={{ color: 'primary.main', mr: 1.5 }} />
-                      <Typography variant="subtitle1" fontWeight={600}>
+                      <Typography variant='subtitle1' fontWeight={600}>
                         {getExamTitle()}
                       </Typography>
                     </Box>
-                    
+
                     <Divider sx={{ my: 2 }} />
-                    
+
                     <Grid container spacing={2}>
                       <Grid item xs={12} sm={6}>
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
-                          <CategoryIcon sx={{ color: 'text.secondary', mr: 1.5, fontSize: 20, mt: 0.3 }} />
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            mb: 2,
+                          }}
+                        >
+                          <CategoryIcon
+                            sx={{
+                              color: 'text.secondary',
+                              mr: 1.5,
+                              fontSize: 20,
+                              mt: 0.3,
+                            }}
+                          />
                           <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                            <Typography
+                              variant='body2'
+                              color='text.secondary'
+                              gutterBottom
+                            >
                               {t('categoriesLabel')}
                             </Typography>
-                            <Typography variant="body1">
+                            <Typography variant='body1'>
                               {getExamCategories()}
                             </Typography>
                           </Box>
                         </Box>
-                        
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
-                          <HelpIcon sx={{ color: 'text.secondary', mr: 1.5, fontSize: 20, mt: 0.3 }} />
+
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            mb: 2,
+                          }}
+                        >
+                          <HelpIcon
+                            sx={{
+                              color: 'text.secondary',
+                              mr: 1.5,
+                              fontSize: 20,
+                              mt: 0.3,
+                            }}
+                          />
                           <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                            <Typography
+                              variant='body2'
+                              color='text.secondary'
+                              gutterBottom
+                            >
                               {t('difficultyLevelLabel')}
                             </Typography>
-                            <Typography variant="body1" sx={{ textTransform: 'capitalize' }}>
+                            <Typography
+                              variant='body1'
+                              sx={{ textTransform: 'capitalize' }}
+                            >
                               {getExamDifficulty()}
                             </Typography>
                           </Box>
                         </Box>
                       </Grid>
-                      
+
                       <Grid item xs={12} sm={6}>
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
-                          <HelpIcon sx={{ color: 'text.secondary', mr: 1.5, fontSize: 20, mt: 0.3 }} />
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            mb: 2,
+                          }}
+                        >
+                          <HelpIcon
+                            sx={{
+                              color: 'text.secondary',
+                              mr: 1.5,
+                              fontSize: 20,
+                              mt: 0.3,
+                            }}
+                          />
                           <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                            <Typography
+                              variant='body2'
+                              color='text.secondary'
+                              gutterBottom
+                            >
                               {t('numberOfQuestionsLabel')}
                             </Typography>
-                            <Typography variant="body1">
+                            <Typography variant='body1'>
                               {getExamQuestionCount()}
                             </Typography>
                           </Box>
                         </Box>
-                        
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
-                          <TimerIcon sx={{ color: 'text.secondary', mr: 1.5, fontSize: 20, mt: 0.3 }} />
+
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            mb: 2,
+                          }}
+                        >
+                          <TimerIcon
+                            sx={{
+                              color: 'text.secondary',
+                              mr: 1.5,
+                              fontSize: 20,
+                              mt: 0.3,
+                            }}
+                          />
                           <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                            <Typography
+                              variant='body2'
+                              color='text.secondary'
+                              gutterBottom
+                            >
                               {t('timeLimitLabel')}
                             </Typography>
-                            <Typography variant="body1">
+                            <Typography variant='body1'>
                               {formatTime(getTotalTime())}
                             </Typography>
                           </Box>
@@ -681,29 +883,35 @@ const CreateExamPage: React.FC = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              
+
               <Grid item xs={12}>
-                <Alert severity="info" sx={{ mb: 2 }}>
+                <Alert severity='info' sx={{ mb: 2 }}>
                   {t('timerWarningMessage')}
                 </Alert>
               </Grid>
-              
-              <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+
+              <Grid
+                item
+                xs={12}
+                sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}
+              >
                 <Button
-                  variant="outlined"
+                  variant='outlined'
                   startIcon={<ArrowBackIcon />}
                   onClick={handleBack}
                   disabled={loading}
                 >
                   {t('backButton')}
                 </Button>
-                
+
                 <Button
-                  variant="contained"
-                  startIcon={loading ? <CircularProgress size={20} /> : undefined}
+                  variant='contained'
+                  startIcon={
+                    loading ? <CircularProgress size={20} /> : undefined
+                  }
                   onClick={handleCreateExam}
                   disabled={loading}
-                  size="large"
+                  size='large'
                 >
                   {t('startTestButton')}
                 </Button>
@@ -711,34 +919,34 @@ const CreateExamPage: React.FC = () => {
             </Grid>
           </Box>
         );
-      
+
       default:
         return null;
     }
   };
-  
+
   return (
-    <Container maxWidth="md" sx={{ py: 8 }}>
-      <Paper 
-        elevation={3} 
-        sx={{ 
-          p: 4, 
+    <Container maxWidth='md' sx={{ py: 8 }}>
+      <Paper
+        elevation={3}
+        sx={{
+          p: 4,
           borderRadius: 3,
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)'
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
         }}
       >
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" component="h1" gutterBottom fontWeight={600}>
+          <Typography variant='h4' component='h1' gutterBottom fontWeight={600}>
             {t('createYourPracticeTestHeading')}
           </Typography>
-          <Typography variant="body1" color="text.secondary">
+          <Typography variant='body1' color='text.secondary'>
             {t('customizeYourQuizSubheading')}
           </Typography>
         </Box>
-        
-        <Stepper 
-          activeStep={activeStep} 
-          alternativeLabel={!isMobile} 
+
+        <Stepper
+          activeStep={activeStep}
+          alternativeLabel={!isMobile}
           orientation={isMobile ? 'vertical' : 'horizontal'}
           sx={{ mb: 4 }}
         >
@@ -748,23 +956,23 @@ const CreateExamPage: React.FC = () => {
             </Step>
           ))}
         </Stepper>
-        
+
         {formError && (
-          <Alert severity="error" sx={{ mb: 3 }}>
+          <Alert severity='error' sx={{ mb: 3 }}>
             {formError}
           </Alert>
         )}
-        
+
         {!isAuthenticated && (
-          <Alert severity="info" sx={{ mb: 3 }}>
+          <Alert severity='info' sx={{ mb: 3 }}>
             {t('createExamGuestMessage')}
           </Alert>
         )}
-        
+
         {renderStepContent()}
       </Paper>
     </Container>
   );
 };
 
-export default CreateExamPage; 
+export default CreateExamPage;

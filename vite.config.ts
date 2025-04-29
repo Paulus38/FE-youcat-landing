@@ -1,16 +1,23 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
     port: process.env.PORT ? parseInt(process.env.PORT) : 3000,
+    // proxy: {
+    //   '/api': {
+    //     target: 'http://localhost:8000',
+    //     changeOrigin: true,
+    //     secure: false,
+    //   },
+    // },
   },
   preview: {
     port: process.env.PORT ? parseInt(process.env.PORT) : 3000,
-    allowedHosts: ["giaoly.cmate.vn"]
+    allowedHosts: ['giaoly.cmate.vn'],
   },
   resolve: {
     alias: {
@@ -24,7 +31,7 @@ export default defineConfig({
       '@utils': path.resolve(__dirname, './src/utils'),
       '@assets': path.resolve(__dirname, './src/assets'),
       '@hooks': path.resolve(__dirname, './src/hooks'),
-      '@config': path.resolve(__dirname, './src/config')
-    }
-  }
-})
+      '@config': path.resolve(__dirname, './src/config'),
+    },
+  },
+});
