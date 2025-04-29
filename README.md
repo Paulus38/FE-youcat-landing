@@ -35,11 +35,7 @@ QuestionYoucat is an interactive quiz application that allows users to test thei
 ### Installation
 
 1. Clone the repository:
-   ```
-   git clone https://github.com/yourusername/question-youcat.git
-   cd question-youcat
-   ```
-
+ 
 2. Install dependencies:
    ```
    npm install
@@ -90,6 +86,7 @@ npm run build
 # or
 yarn build
 ```
+## run prod
+npx vite preview --host 0.0.0.0 --port 3000
 
-The build files will be located in the `dist` directory.
 
