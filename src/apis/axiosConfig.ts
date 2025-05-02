@@ -1,6 +1,8 @@
 import axios from 'axios';
 import authService from '../services/authService';
-import { API_BASE_URL } from '../config/api';
+import { API_BASE_URL, REFRESH_TOKEN, TOKEN_KEY } from '../config/api';
+import { getCookie } from '@/services/cookieService';
+import { get } from 'http';
 
 // Create axios instance with default config
 const axiosInstance = axios.create({
@@ -13,14 +15,14 @@ const axiosInstance = axios.create({
 // Add request interceptor to add auth token to every request
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Get token from localStorage
-    const token = localStorage.getItem('auth_token');
-    
+    // Get the token from authService
+    const token = getCookie(TOKEN_KEY);
+
     // If token exists, add to headers
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     return config;
   },
   (error) => {
@@ -35,25 +37,25 @@ axiosInstance.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-    
+
     // If error is 401 (Unauthorized) and request hasn't been retried yet
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      
+
       try {
         // Get refresh token
-        const refreshToken = localStorage.getItem('refresh_token');
-        
+        const refreshToken = getCookie(REFRESH_TOKEN);
+
         if (!refreshToken) {
           // No refresh token, logout user
           authService.logout();
           window.location.href = '/auth/login'; // Redirect to login page
           return Promise.reject(error);
         }
-        
+
         // Try to refresh token
         const response = await authService.refreshToken();
-        
+
         // If successful, retry original request
         if (response.data.accessToken) {
           // Update Authorization header with new token
@@ -67,9 +69,9 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
-    
+
     return Promise.reject(error);
   }
 );
 
-export default axiosInstance; 
+export default axiosInstance;

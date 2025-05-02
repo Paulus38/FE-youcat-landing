@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 import authService from './authService';
-import Cookies from 'js-cookie';
+import { setCookie } from './cookieService';
 
 // Cookie name for guest identifier
 const GUEST_IDENTIFIER_COOKIE = 'exam_guest_identifier';
@@ -82,7 +82,9 @@ export interface BooksResponse {
 // Create API instance with auth token and guest identifier
 const createApiInstance = () => {
   const token = authService.getToken();
-  const guestId = Cookies.get(GUEST_IDENTIFIER_COOKIE);
+  // Get guest identifier from cookies
+
+  const guestId = authService.getGuestIdentifier();
 
   return axios.create({
     baseURL: API_BASE_URL,
@@ -105,11 +107,12 @@ const examService = {
     let { guest_identifier, ...examSettings } = examData;
 
     // Check if guest_identifier exists in cookies
-    const guestIdFromCookie = Cookies.get(GUEST_IDENTIFIER_COOKIE);
-    if (guestIdFromCookie) {
+    const guestIdFromCookie = authService.getGuestIdentifier();
+    // If guest_identifier is not provided and exists in cookies, use it
+    // Otherwise, generate a new one
+    if (!guest_identifier && guestIdFromCookie) {
       guest_identifier = guestIdFromCookie;
-      // Use js-cookie instead of document.cookie
-      Cookies.set(GUEST_IDENTIFIER_COOKIE, guestIdFromCookie, {
+      setCookie(GUEST_IDENTIFIER_COOKIE, guestIdFromCookie, {
         path: '/',
         sameSite: 'strict',
       });
@@ -126,10 +129,10 @@ const examService = {
 
       // Store guest_identifier in cookie if present in response
       if (response.data?.data?.guest_identifier) {
-        Cookies.set(
+        setCookie(
           GUEST_IDENTIFIER_COOKIE,
           response.data.data.guest_identifier,
-          { expires: 7 }
+          { expires: new Date(Date.now() + 7 * 60 * 60 * 1000) } // 7 hours in milliseconds
         );
       }
 
@@ -159,11 +162,6 @@ const examService = {
     }
   },
 
-  // Get guest identifier from cookies
-  getGuestIdentifier: () => {
-    return Cookies.get(GUEST_IDENTIFIER_COOKIE);
-  },
-
   // Get exam details by ID
   getExam: async (examId: string) => {
     const api = createApiInstance();
@@ -191,8 +189,11 @@ const examService = {
     try {
       // Use guest_identifier from cookie if not provided and user is not authenticated
       const guestId =
-        guest_identifier ||
-        (!token ? Cookies.get(GUEST_IDENTIFIER_COOKIE) : undefined);
+        guest_identifier &&
+        guest_identifier !== '' &&
+        guest_identifier !== undefined
+          ? guest_identifier
+          : authService.getGuestIdentifier();
 
       // For guest users (no token), guest_identifier is required
       if (!token && !guestId) {
@@ -227,7 +228,7 @@ const examService = {
   getExamResult: async (resultId: string, participantId: number) => {
     const api = createApiInstance();
     const token = authService.getToken();
-    const guestId = Cookies.get(GUEST_IDENTIFIER_COOKIE);
+    const guestId = authService.getGuestIdentifier();
 
     try {
       // Nếu đã login (có token), gọi API result thông thường
@@ -309,10 +310,10 @@ const examService = {
 
       // Store guest_identifier in cookie if present in response
       if (response.data?.data?.guest_identifier) {
-        Cookies.set(
+        setCookie(
           GUEST_IDENTIFIER_COOKIE,
           response.data.data.guest_identifier,
-          { expires: 7 }
+          { expires: new Date(Date.now() + 7 * 60 * 60 * 1000) } // 7 hours in milliseconds
         );
       }
 

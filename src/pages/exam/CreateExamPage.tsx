@@ -49,6 +49,7 @@ import examService, {
 } from '@/services/examService';
 import { useAuth } from '@context/AuthContext';
 import { useLanguage } from '@context/LanguageContext';
+import authService from '@/services/authService';
 
 const categoryOptions = [
   { id: 'cat1', name: 'generalCatechism' },
@@ -218,7 +219,7 @@ const CreateExamPage: React.FC = () => {
       } else if (examMode === 'predefined' && selectedPredefinedExam) {
         let response;
         const examId = selectedPredefinedExam;
-        const guestIdentifier = examService.getGuestIdentifier();
+        const guestIdentifier = authService.getGuestIdentifier();
 
         if (isAuthenticated) {
           response = await examService.startAuthenticatedExam(examId);
