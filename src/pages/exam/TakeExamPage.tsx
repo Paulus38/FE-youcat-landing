@@ -265,8 +265,7 @@ const TakeExamPage: React.FC = () => {
         examData.id.toString(),
         payload.ExamAnswers,
         examData.duration,
-        examData.ExamParticipants[0].id,
-        examData.guest_identifier // Use guest_identifier if available
+        examData.ExamParticipants[0].id
       );
 
       // Navigate to results page with the result ID
