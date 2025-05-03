@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { API_BASE_URL, GUEST_IDENTIFIER_COOKIE } from '../config/api';
+import axiosInstance from '@/config/axiosConfig';
+import { API_BASE_URL } from '../config/api';
 import { getCookie, removeCookie, setCookie } from './cookieService';
 
 export interface LoginPayload {
@@ -44,11 +44,18 @@ export interface AuthResponse {
 
 const TOKEN_KEY = 't';
 const REFRESH_TOKEN_KEY = 'rt';
+const GUEST_IDENTIFIER_COOKIE = 'exam_guest_identifier';
 
 // Functions to handle token storage
 const setTokens = (accessToken: string, refreshToken: string) => {
   setCookie(TOKEN_KEY, accessToken);
   setCookie(REFRESH_TOKEN_KEY, refreshToken);
+  axiosInstance.defaults.headers.common[
+    'Authorization'
+  ] = `Bearer ${accessToken}`;
+  axiosInstance.defaults.headers.common['Cookie'] = `rt=${refreshToken}`;
+  // Set the guest identifier cookie if it doesn't exist
+  removeCookie(GUEST_IDENTIFIER_COOKIE);
 };
 
 const getAccessToken = () => {
@@ -62,13 +69,16 @@ const getRefreshToken = () => {
 const clearTokens = () => {
   removeCookie(TOKEN_KEY);
   removeCookie(REFRESH_TOKEN_KEY);
+  delete axiosInstance.defaults.headers.common.Authorization;
+  removeCookie(GUEST_IDENTIFIER_COOKIE);
+  axiosInstance.defaults.headers.common['Cookie'] = '';
 };
 
 export const authService = {
   // Sign in with username and password
   signin: async (payload: LoginPayload) => {
     try {
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         `${API_BASE_URL}/auth/sign-in`,
         payload
       );
@@ -94,7 +104,7 @@ export const authService = {
         name: userData.name,
       };
 
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         `${API_BASE_URL}/auth/sign-up`,
         signUpPayload
       );
@@ -119,7 +129,7 @@ export const authService = {
   // Google OAuth login
   googleLogin: async (credential: string) => {
     try {
-      const response = await axios.post<AuthResponse>(
+      const response = await axiosInstance.post<AuthResponse>(
         `${API_BASE_URL}/auth/candidate/google/login`,
         { credential }
       );
@@ -157,9 +167,12 @@ export const authService = {
         throw new Error('No refresh token available');
       }
 
-      const response = await axios.post(`${API_BASE_URL}/auth/refresh-token`, {
-        refreshToken,
-      });
+      const response = await axiosInstance.post(
+        `${API_BASE_URL}/auth/refresh-token`,
+        {
+          refreshToken,
+        }
+      );
 
       if (response.data.data.accessToken) {
         const { accessToken, refreshToken: newRefreshToken } =
@@ -185,6 +198,23 @@ export const authService = {
       return null;
     }
     return guestIdentifier;
+  },
+  setCookieGuestIdentifier: (guestId: string) => {
+    let guestIdFromCookie = authService.getGuestIdentifier();
+    if (guestIdFromCookie !== guestId) {
+      // Nếu guestId không giống với giá trị trong cookie, thì cập nhật cookie
+      setCookie(GUEST_IDENTIFIER_COOKIE, guestId, {
+        path: '/', // phải luôn giống nhau
+        sameSite: 'lax', // hoặc 'lax', nhưng phải thống nhất
+        expires: new Date(Date.now() + 7 * 60 * 60 * 1000), // 7 hours in milliseconds
+      });
+      guestIdFromCookie = guestId;
+    }
+    axiosInstance.defaults.headers.common[
+      'Cookie'
+    ] = `${GUEST_IDENTIFIER_COOKIE}=${guestIdFromCookie}`;
+
+    return guestIdFromCookie;
   },
 };
 

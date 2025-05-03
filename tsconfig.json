@@ -27,7 +27,6 @@
       "@components/*": ["src/components/*"],
       "@pages/*": ["src/pages/*"],
       "@layouts/*": ["src/layouts/*"],
-      "@apis/*": ["src/apis/*"],
       "@context/*": ["src/context/*"],
       "@theme/*": ["src/theme/*"],
       "@utils/*": ["src/utils/*"],

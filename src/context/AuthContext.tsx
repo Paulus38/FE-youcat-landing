@@ -1,13 +1,20 @@
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  ReactNode,
+} from 'react';
 import authService from '../services/authService';
 import { API_BASE_URL } from '@/config/api';
+import profileService from '@/services/profileService';
 
 interface User {
-  id?: string;
+  id?: number;
   username: string;
   email?: string;
   name?: string;
-  image?: string;
+  image?: string | null;
 }
 
 interface AuthContextType {
@@ -55,39 +62,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       const token = authService.getToken();
-      
+
       if (token) {
         setIsAuthenticated(true);
         setAccessToken(token);
-        
+
         try {
           // Fetch profile data using the actual API endpoint
-          const profileResponse = await fetch(`${API_BASE_URL || ''}/user/profile`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
+          const profileResponse = await profileService.getProfile();
+          setUser({
+            id: profileResponse.id,
+            username: profileResponse.username,
+            name: profileResponse?.name || profileResponse.username,
+            email: profileResponse?.email || '',
+            image: profileResponse?.image || null,
           });
-          
-          if (profileResponse.ok) {
-            const responseData = await profileResponse.json();
-            const profileData = responseData.data;
-            
-            setUser({
-              id: profileData.id,
-              username: profileData.username,
-              name: profileData.Candidate?.name || profileData.username,
-              email: profileData.Candidate?.email || '',
-              image: profileData.Candidate?.image || null
-            });
-          }
         } catch (error) {
           console.error('Failed to fetch user profile', error);
         }
       }
-      
+
       setLoading(false);
     };
-    
+
     checkAuth();
   }, []);
 
@@ -95,11 +92,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (username: string, password: string) => {
     try {
       const response = await authService.signin({ username, password });
-      
+
       setIsAuthenticated(true);
       const token = authService.getToken();
       setAccessToken(token);
-      
+
       // Set user data from response
       if (response.data && response.data.username) {
         setUser({
@@ -107,34 +104,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Add any other available user data
         });
       }
-      
+
       // Try to fetch user profile to get more details
       if (token) {
         try {
           // Fetch profile data using the actual API endpoint
-          const profileResponse = await fetch(`${API_BASE_URL || ''}/user/profile`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
+          const profileResponse = await fetch(
+            `${API_BASE_URL || ''}/user/profile`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
             }
-          });
-          
+          );
+
           if (profileResponse.ok) {
             const responseData = await profileResponse.json();
             const profileData = responseData.data;
-            
+
             setUser({
               id: profileData.id,
               username: profileData.username,
               name: profileData.Candidate?.name || profileData.username,
               email: profileData.Candidate?.email || '',
-              image: profileData.Candidate?.image || null
+              image: profileData.Candidate?.image || null,
             });
           }
         } catch (profileError) {
-          console.error('Failed to fetch user profile after login:', profileError);
+          console.error(
+            'Failed to fetch user profile after login:',
+            profileError
+          );
         }
       }
-      
+
       return response;
     } catch (error) {
       console.error('Login failed:', error);
@@ -152,49 +155,55 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }) => {
     try {
       const response = await authService.signup(userData);
-      
+
       // Only set authentication if we get tokens back immediately
       // For email verification flows, the user may not be authenticated yet
       if (response.data?.auth?.accessToken) {
         setIsAuthenticated(true);
         const token = authService.getToken();
         setAccessToken(token);
-        
+
         // Set initial user data
         setUser({
           username: userData.username,
           name: userData.name,
-          email: userData.email
+          email: userData.email,
         });
-        
+
         // Try to fetch user profile to get complete details if authenticated
         if (token) {
           try {
             // Fetch profile data using the actual API endpoint
-            const profileResponse = await fetch(`${API_BASE_URL || ''}/user/profile`, {
-              headers: {
-                'Authorization': `Bearer ${token}`
+            const profileResponse = await fetch(
+              `${API_BASE_URL || ''}/user/profile`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
               }
-            });
-            
+            );
+
             if (profileResponse.ok) {
               const responseData = await profileResponse.json();
               const profileData = responseData.data;
-              
+
               setUser({
                 id: profileData.id,
                 username: profileData.username,
                 name: profileData.Candidate?.name || profileData.username,
                 email: profileData.Candidate?.email || '',
-                image: profileData.Candidate?.image || null
+                image: profileData.Candidate?.image || null,
               });
             }
           } catch (profileError) {
-            console.error('Failed to fetch user profile after registration:', profileError);
+            console.error(
+              'Failed to fetch user profile after registration:',
+              profileError
+            );
           }
         }
       }
-      
+
       return response;
     } catch (error) {
       console.error('Registration failed:', error);
@@ -206,15 +215,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const googleLogin = async (credential: string) => {
     try {
       const response = await authService.googleLogin(credential);
-      
+
       setIsAuthenticated(true);
       setAccessToken(authService.getToken());
-      
+
       // We'll set minimal user data here, complete profile will be loaded in profile page
       setUser({
-        username: 'googleuser' // This will be updated when we fetch the profile
+        username: 'googleuser', // This will be updated when we fetch the profile
       });
-      
+
       return response;
     } catch (error) {
       console.error('Google login failed:', error);
@@ -236,18 +245,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{
-      isAuthenticated,
-      user,
-      accessToken,
-      login,
-      register,
-      googleLogin,
-      logout
-    }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        user,
+        accessToken,
+        login,
+        register,
+        googleLogin,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export default AuthContext; 
+export default AuthContext;

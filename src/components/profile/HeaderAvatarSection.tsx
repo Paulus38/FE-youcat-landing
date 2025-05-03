@@ -56,7 +56,7 @@ const avatarList = [
   { id: 'avatar-22.webp', src: avatar22 },
   { id: 'avatar-23.webp', src: avatar23 },
   { id: 'avatar-24.webp', src: avatar24 },
-  { id: 'avatar-25.webp', src: avatar25 }
+  { id: 'avatar-25.webp', src: avatar25 },
 ];
 
 interface HeaderAvatarSectionProps {
@@ -70,38 +70,40 @@ interface HeaderAvatarSectionProps {
   showEmail?: boolean;
 }
 
-const HeaderAvatarSection: React.FC<HeaderAvatarSectionProps> = ({ 
-  user, 
-  size = 32, 
+const HeaderAvatarSection: React.FC<HeaderAvatarSectionProps> = ({
+  user,
+  size = 32,
   showName = true,
-  showEmail = false
+  showEmail = false,
 }) => {
   const theme = useTheme();
 
   if (!user) return null;
 
   // Find avatar in avatarList
-  const avatarSrc = user?.image ? 
-    avatarList.find(avatar => avatar.id === user.image)?.src : 
-    undefined;
-    const navigate = useNavigate();
-    const handleClick = () => {
-      navigate('/profile');
-    };
+  const avatarSrc = user?.image
+    ? avatarList.find((avatar) => avatar.id === user.image)?.src
+    : undefined;
+  const navigate = useNavigate();
+  const handleClick = () => {
+    navigate('/profile');
+  };
   return (
-    <Box sx={{
-      display: 'flex',
-      alignItems: 'center',
-      cursor: 'pointer',
-      '&:hover': { bgcolor: theme.palette.action.hover }
-    }}
-    onClick={handleClick}>
-      <Avatar 
-        sx={{ 
-          width: size, 
-          height: size, 
-          mr: 1, 
-          bgcolor: theme.palette.secondary.main 
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        cursor: 'pointer',
+        '&:hover': { bgcolor: theme.palette.action.hover },
+      }}
+      onClick={handleClick}
+    >
+      <Avatar
+        sx={{
+          width: size,
+          height: size,
+          mr: 1,
+          bgcolor: theme.palette.secondary.main,
         }}
         src={avatarSrc}
       >
@@ -109,11 +111,11 @@ const HeaderAvatarSection: React.FC<HeaderAvatarSectionProps> = ({
       </Avatar>
       {showName && (
         <Box>
-          <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+          <Typography variant='body1' sx={{ fontWeight: 'bold' }}>
             {user?.name || 'User'}
           </Typography>
           {showEmail && user?.email && (
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant='body2' color='text.secondary'>
               {user.email}
             </Typography>
           )}
@@ -123,4 +125,4 @@ const HeaderAvatarSection: React.FC<HeaderAvatarSectionProps> = ({
   );
 };
 
-export default HeaderAvatarSection; 
+export default HeaderAvatarSection;

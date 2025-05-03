@@ -1,15 +1,17 @@
 import axios from 'axios';
 import authService from '../services/authService';
-import { API_BASE_URL, REFRESH_TOKEN, TOKEN_KEY } from '../config/api';
+import { API_BASE_URL } from './api';
 import { getCookie } from '@/services/cookieService';
-import { get } from 'http';
 
+const TOKEN_KEY = 't';
+const REFRESH_TOKEN = 'rt';
 // Create axios instance with default config
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Include credentials (cookies) in requests
 });
 
 // Add request interceptor to add auth token to every request

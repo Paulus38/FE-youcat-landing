@@ -1,10 +1,5 @@
-import axios from 'axios';
-import { API_BASE_URL } from '../config/api';
 import authService from './authService';
-import { setCookie } from './cookieService';
-
-// Cookie name for guest identifier
-const GUEST_IDENTIFIER_COOKIE = 'exam_guest_identifier';
+import axiosInstance from '@/config/axiosConfig';
 
 // Define interfaces for exam-related data
 export interface ExamSettings {
@@ -78,29 +73,28 @@ export interface BooksResponse {
   message: string;
   data: Book[];
 }
+const GUEST_IDENTIFIER_COOKIE = 'exam_guest_identifier';
 
 // Create API instance with auth token and guest identifier
 const createApiInstance = () => {
   const token = authService.getToken();
-  // Get guest identifier from cookies
-
   const guestId = authService.getGuestIdentifier();
-
-  return axios.create({
-    baseURL: API_BASE_URL,
-    withCredentials: true, // Enable sending cookies
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(!token && guestId ? { 'guest-identifier': guestId } : {}),
-    },
-  });
+  if (token) {
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  } else if (guestId) {
+    authService.setCookieGuestIdentifier(guestId);
+    axiosInstance.defaults.headers.common[
+      'Cookie'
+    ] = `${GUEST_IDENTIFIER_COOKIE}=${guestId}`;
+  }
+  return axiosInstance;
 };
+
+const api = createApiInstance();
 
 const examService = {
   // Create a new exam
   createExam: async (examData: ExamSettings) => {
-    const api = createApiInstance();
     const token = authService.getToken();
 
     // Extract guest_identifier if present
@@ -112,10 +106,6 @@ const examService = {
     // Otherwise, generate a new one
     if (!guest_identifier && guestIdFromCookie) {
       guest_identifier = guestIdFromCookie;
-      setCookie(GUEST_IDENTIFIER_COOKIE, guestIdFromCookie, {
-        path: '/',
-        sameSite: 'strict',
-      });
     }
 
     const payload = {
@@ -129,10 +119,8 @@ const examService = {
 
       // Store guest_identifier in cookie if present in response
       if (response.data?.data?.guest_identifier) {
-        setCookie(
-          GUEST_IDENTIFIER_COOKIE,
-          response.data.data.guest_identifier,
-          { expires: new Date(Date.now() + 7 * 60 * 60 * 1000) } // 7 hours in milliseconds
+        authService.setCookieGuestIdentifier(
+          response.data.data.guest_identifier
         );
       }
 
@@ -148,8 +136,6 @@ const examService = {
 
   // Get predefined exams
   getPredefinedExams: async () => {
-    const api = createApiInstance();
-
     try {
       const response = await api.get<PredefinedExamsResponse>('/exam/type-3');
       return response.data;
@@ -164,8 +150,6 @@ const examService = {
 
   // Get exam details by ID
   getExam: async (examId: string) => {
-    const api = createApiInstance();
-
     try {
       const response = await api.get<ExamResponse>(`/exam/${examId}/detail`);
       return response.data;
@@ -180,36 +164,18 @@ const examService = {
     examId: string,
     answers: { exam_question_id: number; selected_answer_id: number | null }[],
     duration: number,
-    participant_id?: number,
-    guest_identifier?: string
+    participant_id?: number
   ) => {
-    const api = createApiInstance();
     const token = authService.getToken();
 
     try {
-      // Use guest_identifier from cookie if not provided and user is not authenticated
-      const guestId =
-        guest_identifier &&
-        guest_identifier !== '' &&
-        guest_identifier !== undefined
-          ? guest_identifier
-          : authService.getGuestIdentifier();
-
-      // For guest users (no token), guest_identifier is required
-      if (!token && !guestId) {
-        throw new Error('guest_identifier is required for guest users');
-      }
-
       const payload = {
         id: participant_id || 0,
         user_id: token ? 0 : null,
-        ...(!token && guestId ? { guest_identifier: guestId } : {}),
         exam_id: Number(examId),
         duration,
         ExamAnswers: Array.isArray(answers) ? answers : [],
       };
-
-      console.log('Submit payload:', JSON.stringify(payload)); // Debug log
 
       // Use different endpoints based on authentication status
       const endpoint = token ? '/exam/submit/auth' : '/exam/submit/guest';
@@ -226,16 +192,14 @@ const examService = {
 
   // Get exam result
   getExamResult: async (resultId: string, participantId: number) => {
-    const api = createApiInstance();
     const token = authService.getToken();
-    const guestId = authService.getGuestIdentifier();
 
     try {
       // Nếu đã login (có token), gọi API result thông thường
       // Nếu chưa login (không có token) và có guest_identifier, gọi API guest_result
       const endpoint = token
         ? `/exam/${resultId}/result?participant=${participantId}`
-        : `/exam/${resultId}/guest_result/${guestId}?participant=${participantId}`;
+        : `/exam/${resultId}/guest_result?participant=${participantId}`;
 
       const response = await api.get(endpoint);
       return response.data;
@@ -250,8 +214,6 @@ const examService = {
 
   // Get user's exams
   getUserExams: async () => {
-    const api = createApiInstance();
-
     try {
       const response = await api.get('/exam/user');
       return response.data;
@@ -266,8 +228,6 @@ const examService = {
 
   // Get user's exam results
   getUserExamResults: async () => {
-    const api = createApiInstance();
-
     try {
       const response = await api.get('/exam-results/user');
       return response.data;
@@ -282,8 +242,6 @@ const examService = {
 
   // Start a predefined exam for authenticated users
   startAuthenticatedExam: async (examId: number) => {
-    const api = createApiInstance();
-
     try {
       const response = await api.post('/exam_participant/start', {
         exam_id: examId,
@@ -303,17 +261,13 @@ const examService = {
     exam_id: number;
     guest_identifier?: string;
   }) => {
-    const api = createApiInstance();
-
     try {
       const response = await api.post('/exam_participant/guest/start', payload);
 
       // Store guest_identifier in cookie if present in response
       if (response.data?.data?.guest_identifier) {
-        setCookie(
-          GUEST_IDENTIFIER_COOKIE,
-          response.data.data.guest_identifier,
-          { expires: new Date(Date.now() + 7 * 60 * 60 * 1000) } // 7 hours in milliseconds
+        authService.setCookieGuestIdentifier(
+          response.data.data.guest_identifier
         );
       }
 
@@ -329,8 +283,6 @@ const examService = {
 
   // Get books
   getBooks: async () => {
-    const api = createApiInstance();
-
     try {
       const response = await api.get<BooksResponse>('/books');
       return response.data;

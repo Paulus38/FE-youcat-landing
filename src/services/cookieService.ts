@@ -1,28 +1,38 @@
-import Cookies, { CookieSetOptions } from 'universal-cookie';
+// cookieUtils.ts
+import Cookies from 'js-cookie';
 
-// Khởi tạo instance của Cookies
-const cookies = new Cookies();
+export const getCookie = (key: string): string | undefined => {
+  return Cookies.get(key); // js-cookie luôn trả string | undefined
+};
 
 export const setCookie = (
   key: string,
-  value: string | object,
-  options: CookieSetOptions = { path: '/' }
-): void => {
-  cookies.set(key, value, options);
+  value: string,
+  options?: Cookies.CookieAttributes
+) => {
+  Cookies.set(key, value, {
+    path: '/',
+    sameSite: 'lax',
+    expires: new Date(Date.now() + 7 * 60 * 60 * 1000),
+    ...options,
+  });
 };
-
-export const removeCookie = (
-  key: string,
-  options: CookieSetOptions = { path: '/' }
-): void => {
-  cookies.remove(key, options);
+export const removeCookie = (key: string) => {
+  Cookies.remove(key, { path: '/' });
 };
-
-export const getCookie = (key: string): string => {
-  const value = cookies.get(key);
-  try {
-    return JSON.parse(value);
-  } catch {
-    return value;
+export const getAllCookies = () => {
+  return Cookies.get();
+};
+export const removeAllCookies = () => {
+  const allCookies = getAllCookies();
+  for (const key in allCookies) {
+    removeCookie(key);
   }
+};
+export const getCookieValue = (key: string): string | undefined => {
+  const cookieValue = getCookie(key);
+  if (cookieValue) {
+    return decodeURIComponent(cookieValue);
+  }
+  return undefined;
 };
