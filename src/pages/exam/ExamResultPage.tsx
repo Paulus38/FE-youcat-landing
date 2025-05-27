@@ -52,6 +52,7 @@ interface ExamQuestion {
   id: number;
   content: string;
   order: number;
+  description: string;
   Question: {
     id: number;
     name: string;
@@ -99,6 +100,7 @@ interface Question {
   id: string | number;
   text: string;
   category?: string;
+  description?: string;
   options: Option[];
   correctOptionId: string | number;
 }
@@ -128,7 +130,8 @@ const ExamResultPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [examResult, setExamResult] = useState<ExamResult | null>(null);
   const [reviewingQuestion, setReviewingQuestion] = useState(0);
-  
+  const [showExplanation, setShowExplanation] = useState(false);
+
   // Format time spent
   const formatTimeSpent = (totalSeconds: number) => {
     const hours = Math.floor(totalSeconds / 3600);
@@ -181,6 +184,7 @@ const ExamResultPage: React.FC = () => {
       return {
         id: eq.id,
         text: eq.content,
+        description: eq.description,
         category: eq.Question?.QuestionCategory ? eq.Question?.QuestionCategory?.name : apiData.Book?.name,
         options: eq.ExamAnswers.map(answer => ({
           id: answer.id,
@@ -562,7 +566,27 @@ const ExamResultPage: React.FC = () => {
                 />
               )}
             </Box>
-            
+              {/* Nút hiển thị giải thích */}
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => setShowExplanation(!showExplanation)}
+              sx={{ mt: 1 }}
+            >
+              {showExplanation ? 'Ẩn giải thích' : 'Xem giải thích'}
+            </Button>
+
+            {/* Nội dung giải thích - nằm sau Chip, trước các option */}
+            {showExplanation && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle2" color="text.primary" gutterBottom>
+                  Giải thích:
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {currentQuestion.description}
+                </Typography>
+              </Box>
+            )}
             <Divider sx={{ my: 2 }} />
             
             <List sx={{ p: 0 }}>
