@@ -582,7 +582,7 @@ const ExamResultPage: React.FC = () => {
                 <Typography variant="subtitle2" color="text.primary" gutterBottom>
                   Giải thích:
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>
                   {currentQuestion.description}
                 </Typography>
               </Box>
