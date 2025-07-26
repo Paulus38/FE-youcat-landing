@@ -98,9 +98,6 @@ const LeaderboardPage: React.FC = () => {
                 <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>
                   {t('name')}
                 </TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>
-                  {t('email')}
-                </TableCell>
                 <TableCell
                   sx={{ color: 'white', fontWeight: 'bold' }}
                   align='right'
@@ -137,7 +134,6 @@ const LeaderboardPage: React.FC = () => {
                     </Box>
                   </TableCell>
                   <TableCell>{user.Candidate.name}</TableCell>
-                  <TableCell>{user.Candidate.email}</TableCell>
                   <TableCell align='right'>
                     {user.totalScore.toFixed(2)}
                   </TableCell>

@@ -23,15 +23,10 @@ import {
   Stepper,
   Step,
   StepLabel,
-  IconButton,
   useTheme,
   useMediaQuery,
   RadioGroup,
   Radio,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemButton,
 } from '@mui/material';
 import {
   Create as CreateIcon,
@@ -43,38 +38,15 @@ import {
   Assignment as AssignmentIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
-import examService, {
-  ExamSettings,
-  PredefinedExam,
-} from '@/services/examService';
+import examService from '@/services/examService';
 import { useAuth } from '@context/AuthContext';
 import { useLanguage } from '@context/LanguageContext';
 import authService from '@/services/authService';
-
-const categoryOptions = [
-  { id: 'cat1', name: 'generalCatechism' },
-  { id: 'cat2', name: 'theCreed' },
-  { id: 'cat3', name: 'theSacraments' },
-  { id: 'cat4', name: 'tenCommandments' },
-  { id: 'cat5', name: 'prayerSpirituality' },
-  { id: 'cat6', name: 'churchHistory' },
-  { id: 'cat7', name: 'socialTeachings' },
-];
-
-const difficultyLevels = [
-  { value: 'easy', label: 'easy' },
-  { value: 'medium', label: 'medium' },
-  { value: 'hard', label: 'hard' },
-  { value: 'mixed', label: 'mixed' },
-];
+import { Book, ExamSettings, PredefinedExam } from './types/Exam.interface';
+import { categoryOptions, difficultyLevels } from './types/Exam.enum';
+import { TopicList } from './TopicList';
 
 type ExamMode = 'predefined' | 'custom';
-
-interface Book {
-  id: number;
-  name: string;
-  description: string | undefined;
-}
 
 const CreateExamPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -104,7 +76,6 @@ const CreateExamPage: React.FC = () => {
     number | null
   >(null);
   const [predefinedExams, setPredefinedExams] = useState<PredefinedExam[]>([]);
-  const [fetchingExams, setFetchingExams] = useState(false);
   const [books, setBooks] = useState<Book[]>([]);
   const [loadingBooks, setLoadingBooks] = useState(false);
 
@@ -123,12 +94,6 @@ const CreateExamPage: React.FC = () => {
   useEffect(() => {
     fetchBooks();
   }, []);
-
-  useEffect(() => {
-    if (examMode === 'predefined' && predefinedExams.length === 0) {
-      fetchPredefinedExams();
-    }
-  }, [examMode]);
 
   useEffect(() => {
     if (fromDiocese) {
@@ -162,20 +127,6 @@ const CreateExamPage: React.FC = () => {
       setLoadingBooks(false);
     }
   };
-
-  const fetchPredefinedExams = async () => {
-    try {
-      setFetchingExams(true);
-      const response = await examService.getPredefinedExams();
-      setPredefinedExams(response.data);
-    } catch (error) {
-      console.error('Error fetching predefined exams:', error);
-      setFormError(t('failedToFetchExamsError'));
-    } finally {
-      setFetchingExams(false);
-    }
-  };
-
   const handleNext = () => {
     if (activeStep === 0) {
       if (!examMode) {
@@ -421,84 +372,10 @@ const CreateExamPage: React.FC = () => {
             </RadioGroup>
 
             {examMode === 'predefined' && (
-              <Box>
-                <Typography variant='subtitle1' fontWeight={500} gutterBottom>
-                  {t('availableExamsHeading')}
-                </Typography>
-
-                {fetchingExams ? (
-                  <Box
-                    sx={{ display: 'flex', justifyContent: 'center', py: 4 }}
-                  >
-                    <CircularProgress />
-                  </Box>
-                ) : predefinedExams.length === 0 ? (
-                  <Alert severity='info' sx={{ mb: 2 }}>
-                    {t('noPredefinedExamsMessage')}
-                  </Alert>
-                ) : (
-                  <List
-                    sx={{
-                      bgcolor: 'background.paper',
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      borderRadius: 1,
-                    }}
-                  >
-                    {predefinedExams.map((exam) => (
-                      <ListItem
-                        key={exam.id}
-                        disablePadding
-                        sx={{
-                          borderBottom: '1px solid',
-                          borderBottomColor: 'divider',
-                          '&:last-child': {
-                            borderBottom: 'none',
-                          },
-                        }}
-                      >
-                        <ListItemButton
-                          selected={selectedPredefinedExam === exam.id}
-                          onClick={() => handlePredefinedExamSelect(exam.id)}
-                          sx={{
-                            py: 2,
-                            '&.Mui-selected': {
-                              bgcolor: 'primary.light',
-                              '&:hover': {
-                                bgcolor: 'primary.light',
-                              },
-                            },
-                          }}
-                        >
-                          <ListItemText
-                            primary={exam.title}
-                            secondary={
-                              <React.Fragment>
-                                <Typography
-                                  component='span'
-                                  variant='body2'
-                                  color='text.primary'
-                                >
-                                  {exam.difficulty.toLowerCase() === 'easy'
-                                    ? t('easyDifficulty')
-                                    : exam.difficulty.toLowerCase() === 'medium'
-                                    ? t('mediumDifficulty')
-                                    : exam.difficulty.toLowerCase() === 'hard'
-                                    ? t('hardDifficulty')
-                                    : t('mixedDifficulty')}{' '}
-                                  •
-                                </Typography>{' '}
-                                {exam.total_question} {t('questionsLabel')} •{' '}
-                                {formatTime(exam.duration)}
-                              </React.Fragment>
-                            }
-                          />
-                        </ListItemButton>
-                      </ListItem>
-                    ))}
-                  </List>
-                )}
-              </Box>
+              <TopicList
+                handlePredefinedExamSelect={handlePredefinedExamSelect}
+                setPredefinedExams={setPredefinedExams}
+              />
             )}
 
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4 }}>
