@@ -20,6 +20,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import examService from '@/services/examService';
 import DialogResultDetail from './DialogResultDetail';
+import { fDateTime } from '@/utils/format-time';
 
 const RecentActivity: React.FC<RecentActivityProps> = ({
   profileData,
@@ -33,6 +34,7 @@ const RecentActivity: React.FC<RecentActivityProps> = ({
   const [selectedResult, setSelectedResult] = useState<Activity | null>(null);
   const [detailedResult, setDetailedResult] = useState<any>(null);
   const [resultLoading, setResultLoading] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
   const handleOpenResultDetail = async (activity: Activity) => {
     setSelectedResult(activity);
@@ -57,6 +59,14 @@ const RecentActivity: React.FC<RecentActivityProps> = ({
     }
   };
 
+  const sortedActivities: Activity[] = [...profileData.activityHistory].sort(
+    (a, b) =>
+      new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
+  );
+  const displayedActivities = showAll
+    ? sortedActivities
+    : sortedActivities.slice(0, 10);
+
   return (
     <Card elevation={0}>
       <CardContent>
@@ -65,10 +75,9 @@ const RecentActivity: React.FC<RecentActivityProps> = ({
         </Typography>
         <Divider sx={{ mb: 2 }} />
 
-        {profileData.activityHistory &&
-        profileData.activityHistory.length > 0 ? (
+        {displayedActivities && displayedActivities.length > 0 ? (
           <List sx={{ width: '100%' }}>
-            {profileData.activityHistory.map((activity, index) => (
+            {displayedActivities.map((activity, index) => (
               <ListItem
                 key={`activity-${index}`}
                 alignItems='flex-start'
@@ -97,7 +106,7 @@ const RecentActivity: React.FC<RecentActivityProps> = ({
                           : 'error.light',
                     }}
                   >
-                    Q
+                    {activity.quizTitle.charAt(0).toUpperCase()}
                   </Avatar>
                 </ListItemIcon>
                 <ListItemText
@@ -115,7 +124,7 @@ const RecentActivity: React.FC<RecentActivityProps> = ({
                       {' — ' +
                         t('completedOn') +
                         ' ' +
-                        new Date(activity.completedAt).toLocaleDateString()}
+                        fDateTime(new Date(activity.completedAt))}
                     </React.Fragment>
                   }
                 />
@@ -133,18 +142,17 @@ const RecentActivity: React.FC<RecentActivityProps> = ({
           </Typography>
         )}
 
-        {profileData.activityHistory &&
-          profileData.activityHistory.length > 0 && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-              <Button
-                variant='outlined'
-                color='primary'
-                onClick={() => navigate('/quiz')}
-              >
-                {t('viewAllHistory')}
-              </Button>
-            </Box>
-          )}
+        {sortedActivities.length > 10 && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+            <Button
+              variant='outlined'
+              color='primary'
+              onClick={() => setShowAll(!showAll)}
+            >
+              {showAll ? t('showLess') : t('viewAllHistory')}
+            </Button>
+          </Box>
+        )}
       </CardContent>
       {/* Quiz Result Detail Dialog */}
       {resultDialogOpen && selectedResult && (

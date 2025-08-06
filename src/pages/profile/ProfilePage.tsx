@@ -32,19 +32,18 @@ import {
   History as HistoryIcon,
   EmojiEvents as TrophyIcon,
   Settings as SettingsIcon,
-  Lock as LockIcon,
-  Delete as DeleteIcon,
   Save as SaveIcon,
   Close as CloseIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
-import profileService, { ProfileData } from '../../services/profileService';
+import profileService from '../../services/profileService';
 import AvatarSection from '../../components/profile/AvatarSection';
 import YourAchievements from './YourAchievement';
 import RecentActivity from './RecentActivity';
 import AccountActions from './AccountActions';
+import { ProfileData, ProfileResponse } from './types/Profile.interface';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -89,6 +88,77 @@ const ProfilePage: React.FC = () => {
     severity: 'success' as 'success' | 'error' | 'info' | 'warning',
   });
 
+  // Map activity data from API response to profileData format
+  const mapActivityToProfileData = (response: ProfileResponse) => {
+    return (
+      response.ExamParticipants?.map((exam: any) => {
+        // Count correct answers from UserAnswers where is_correct=1
+        const correctAnswersCount =
+          exam.UserAnswers?.filter((answer: any) => answer.is_correct === 1)
+            .length || 0;
+
+        return {
+          id: exam.id,
+          quizId: exam.Exam?.id || '',
+          quizTitle: `${exam.Exam?.title || 'Unknown'}`,
+          score:
+            parseFloat(
+              ((correctAnswersCount / exam.Exam?.total_question) * 100).toFixed(
+                1
+              )
+            ) || 0,
+          correctAnswers: correctAnswersCount,
+          totalQuestions: exam.Exam?.total_question || 0,
+          completedAt: exam.end_time,
+          duration: exam.duration,
+          questions:
+            exam.UserAnswers?.map((answer: any) => ({
+              question: answer.Question?.content || 'Unknown question',
+              userAnswer: answer.Answer?.content || 'No answer provided',
+              correctAnswer:
+                answer.Question?.Answers?.find((a: any) => a.is_correct === 1)
+                  ?.content || 'Unknown',
+              isCorrect: answer.is_correct === 1,
+            })) || [],
+        };
+      }) || []
+    );
+  };
+  // Map statistics from API response
+  const mapDataStatistics = (response: ProfileResponse) => {
+    return {
+      quizzesCompleted: response.ExamParticipants?.length || 0,
+      // Calculate average score based on all completed quizzes
+      averageScore: response.ExamParticipants?.length
+        ? parseFloat(
+            (
+              response.ExamParticipants.reduce((acc: number, exam: any) => {
+                const correctCount =
+                  exam.UserAnswers?.filter(
+                    (answer: any) => answer.is_correct === 1
+                  ).length || 0;
+                const totalQuestions = exam.Exam?.total_question || 0;
+                return (
+                  acc +
+                  (totalQuestions > 0
+                    ? (correctCount / totalQuestions) * 100
+                    : 0)
+                );
+              }, 0) / response.ExamParticipants.length
+            ).toFixed(1)
+          )
+        : 0,
+      achievements: 0, // Placeholder - no achievements data in API yet
+      totalPoints:
+        response.ExamParticipants?.reduce(
+          (acc: number, exam: any) =>
+            acc +
+            (exam.UserAnswers?.filter((answer: any) => answer.is_correct === 1)
+              .length || 0),
+          0
+        ) || 0,
+    };
+  };
   // Define fetchProfileData function using useCallback to avoid dependency issues
   const fetchProfileData = useCallback(async () => {
     if (!accessToken) return;
@@ -96,7 +166,24 @@ const ProfilePage: React.FC = () => {
     setLoading(true);
     try {
       const response = await profileService.getProfile();
-      setProfileData(response);
+      if (!response) {
+        throw new Error(t('profileDataNotFound'));
+      }
+      setLoading(false);
+
+      const profileData = {
+        id: response.id,
+        username: response.username,
+        name: response.Candidate?.name || response.username,
+        email: response.Candidate?.email || response.username,
+        image: response.Candidate?.image || null,
+        is_google_account: response.Candidate?.is_google,
+        // Process exam history
+        activityHistory: mapActivityToProfileData(response),
+        statistics: mapDataStatistics(response),
+      } as ProfileData;
+
+      setProfileData(profileData);
       setError(null);
       setNotification({
         open: true,

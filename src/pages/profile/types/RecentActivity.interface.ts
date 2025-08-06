@@ -17,6 +17,7 @@ export interface Activity {
   correctAnswers: number;
   totalQuestions: number;
   completedAt: string;
+  duration?: number;
   questions?: Question[];
 }
 

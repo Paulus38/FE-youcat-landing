@@ -379,6 +379,10 @@ const translations: Translations = {
     en: 'View All History',
     vi: 'Xem Tất Cả Lịch Sử',
   },
+  showLess: {
+    en: 'Show Less',
+    vi: 'Hiển Thị Ít Hơn',
+  },
   score: {
     en: 'Score',
     vi: 'Điểm',
@@ -821,8 +825,8 @@ const translations: Translations = {
     vi: 'Học Viên Chuyên Cần',
   },
   dedicatedStudentDesc: {
-    en: 'Log in every day for a week',
-    vi: 'Đăng nhập mỗi ngày trong một tuần',
+    vi: 'Thực hiện 7 ngày liên tiếp kiểm tra',
+    en: 'Complete quizzes for 7 consecutive days',
   },
   daysCompleted: {
     en: '{current}/{total} days completed',

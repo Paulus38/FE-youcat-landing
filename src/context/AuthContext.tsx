@@ -73,9 +73,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser({
             id: profileResponse.id,
             username: profileResponse.username,
-            name: profileResponse?.name || profileResponse.username,
-            email: profileResponse?.email || '',
-            image: profileResponse?.image || null,
+            name: profileResponse.Candidate?.name || profileResponse.username,
+            email: profileResponse.Candidate?.email || '',
+            image: profileResponse.Candidate?.image || null,
           });
         } catch (error) {
           console.error('Failed to fetch user profile', error);
