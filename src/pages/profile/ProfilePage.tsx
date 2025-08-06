@@ -44,6 +44,7 @@ import profileService, { ProfileData } from '../../services/profileService';
 import AvatarSection from '../../components/profile/AvatarSection';
 import YourAchievements from './YourAchievement';
 import RecentActivity from './RecentActivity';
+import AccountActions from './AccountActions';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -461,37 +462,10 @@ const ProfilePage: React.FC = () => {
                   </Box>
                 </CardContent>
               </Card>
-
-              <Card elevation={0}>
-                <CardContent>
-                  <Typography variant='h6' gutterBottom>
-                    {t('accountActions')}
-                  </Typography>
-                  <Divider sx={{ mb: 2 }} />
-
-                  <List dense>
-                    <ListItem button>
-                      <ListItemIcon>
-                        <LockIcon />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={t('changePassword')}
-                        secondary={t('changePasswordDescription')}
-                      />
-                    </ListItem>
-                    <ListItem button>
-                      <ListItemIcon>
-                        <DeleteIcon color='error' />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={t('deleteAccount')}
-                        secondary={t('deleteAccountWarning')}
-                        primaryTypographyProps={{ color: 'error' }}
-                      />
-                    </ListItem>
-                  </List>
-                </CardContent>
-              </Card>
+              {/*  Account actions */}
+              <AccountActions
+                isGoogleAccount={profileData?.is_google_account || false}
+              />
             </TabPanel>
             {/*  Recent Activity Tab */}
             <TabPanel value={tabValue} index={1}>

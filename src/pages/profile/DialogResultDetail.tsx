@@ -18,17 +18,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { Activity } from './types/RecentActivity.interface';
 
-import {
-  Person as PersonIcon,
-  Edit as EditIcon,
-  History as HistoryIcon,
-  EmojiEvents as TrophyIcon,
-  Settings as SettingsIcon,
-  Lock as LockIcon,
-  Delete as DeleteIcon,
-  Save as SaveIcon,
-  Close as CloseIcon,
-} from '@mui/icons-material';
+import { Close as CloseIcon } from '@mui/icons-material';
 
 interface DiaLogResultDetailProps {
   resultDialogOpen: boolean;
@@ -38,11 +28,6 @@ interface DiaLogResultDetailProps {
   setResultDialogOpen: (open: boolean) => void;
   setDetailedResult: (result: any) => void;
   setSelectedResult: (activity: Activity | null) => void;
-  setNotification: (notification: {
-    open: boolean;
-    message: string;
-    severity: 'error' | 'success' | 'info' | 'warning';
-  }) => void;
 }
 
 const DialogResultDetail: React.FC<DiaLogResultDetailProps> = ({
@@ -53,7 +38,6 @@ const DialogResultDetail: React.FC<DiaLogResultDetailProps> = ({
   detailedResult,
   selectedResult,
   resultLoading,
-  setNotification,
 }: DiaLogResultDetailProps) => {
   const { t } = useLanguage();
   const navigate = useNavigate();

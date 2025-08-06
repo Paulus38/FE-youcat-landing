@@ -156,7 +156,6 @@ const RecentActivity: React.FC<RecentActivityProps> = ({
           detailedResult={detailedResult}
           selectedResult={selectedResult}
           resultLoading={resultLoading}
-          setNotification={setNotification}
         />
       )}
     </Card>

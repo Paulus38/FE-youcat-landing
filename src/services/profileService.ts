@@ -11,6 +11,7 @@ export interface ApiProfileResponse {
       name: string;
       email: string;
       image?: string;
+      is_google?: boolean; // Optional field for Google accounts
     };
     ExamParticipants?: Array<{
       id: number;
@@ -41,6 +42,7 @@ export interface ProfileData {
   name: string;
   email: string;
   image: string | null;
+  is_google_account?: boolean; // Optional field for Google accounts
   activityHistory: any[];
   statistics: {
     quizzesCompleted: number;
@@ -103,6 +105,7 @@ const profileService = {
         name: responseData.Candidate?.name || responseData.username,
         email: responseData.Candidate?.email || responseData.username,
         image: responseData.Candidate?.image || null,
+        is_google_account: responseData.Candidate?.is_google,
 
         // Process exam history
         activityHistory:

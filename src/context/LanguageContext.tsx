@@ -15,6 +15,10 @@ const translations: Translations = {
     en: 'Magisterium',
     vi: 'Giáo Lý',
   },
+  delete: {
+    en: 'Delete',
+    vi: 'Xóa',
+  },
   home: {
     en: 'Home',
     vi: 'Trang Chủ',
@@ -339,6 +343,18 @@ const translations: Translations = {
     en: 'Update your password for better security',
     vi: 'Cập nhật mật khẩu để bảo mật tốt hơn',
   },
+  changePasswordDisabledForGoogle: {
+    en: 'Change password is disabled for Google accounts',
+    vi: 'Đổi mật khẩu bị vô hiệu hóa cho tài khoản Google',
+  },
+  oldPassword: {
+    en: 'Old Password',
+    vi: 'Mật Khẩu Cũ',
+  },
+  newPassword: {
+    en: 'New Password',
+    vi: 'Mật Khẩu Mới',
+  },
   deleteAccount: {
     en: 'Delete Account',
     vi: 'Xóa Tài Khoản',
@@ -346,6 +362,10 @@ const translations: Translations = {
   deleteAccountWarning: {
     en: 'This action cannot be undone',
     vi: 'Hành động này không thể hoàn tác',
+  },
+  deleteAccountWarningDescription: {
+    en: 'Are you sure you want to delete your account? This action cannot be undone.',
+    vi: 'Bạn có chắc chắn muốn xóa tài khoản của mình không? Hành động này không thể hoàn tác.',
   },
   recentActivity: {
     en: 'Recent Activity',
