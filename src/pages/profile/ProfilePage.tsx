@@ -11,10 +11,6 @@ import {
   Divider,
   Tabs,
   Tab,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
   CircularProgress,
   Dialog,
   DialogTitle,
@@ -23,8 +19,6 @@ import {
   TextField,
   Snackbar,
   Alert,
-  Avatar,
-  IconButton,
 } from '@mui/material';
 import {
   Person as PersonIcon,
@@ -44,6 +38,8 @@ import YourAchievements from './YourAchievement';
 import RecentActivity from './RecentActivity';
 import AccountActions from './AccountActions';
 import { ProfileData, ProfileResponse } from './types/Profile.interface';
+import { ExamParticipant } from './types/ExamParticipants.interface';
+import { calculateAchievements } from './utils';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -75,6 +71,9 @@ const ProfilePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [examParticipants, setExamParticipants] = useState<ExamParticipant[]>(
+    []
+  );
 
   // State for profile edit dialog
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -126,6 +125,10 @@ const ProfilePage: React.FC = () => {
   };
   // Map statistics from API response
   const mapDataStatistics = (response: ProfileResponse) => {
+    const result = calculateAchievements(response.ExamParticipants || []);
+    // Count achievements based on the result object
+    const numberAchievement = Object.values(result).filter(Boolean).length | 0;
+
     return {
       quizzesCompleted: response.ExamParticipants?.length || 0,
       // Calculate average score based on all completed quizzes
@@ -148,7 +151,7 @@ const ProfilePage: React.FC = () => {
             ).toFixed(1)
           )
         : 0,
-      achievements: 0, // Placeholder - no achievements data in API yet
+      achievements: numberAchievement,
       totalPoints:
         response.ExamParticipants?.reduce(
           (acc: number, exam: any) =>
@@ -184,6 +187,7 @@ const ProfilePage: React.FC = () => {
       } as ProfileData;
 
       setProfileData(profileData);
+      setExamParticipants(response.ExamParticipants || []);
       setError(null);
       setNotification({
         open: true,
@@ -561,10 +565,12 @@ const ProfilePage: React.FC = () => {
                 setNotification={setNotification}
               />
             </TabPanel>
+
             {/* Your Achievements Tab */}
             <TabPanel value={tabValue} index={2}>
-              <YourAchievements />
+              <YourAchievements examParticipants={examParticipants} />
             </TabPanel>
+
             {/* Settings Tab */}
             <TabPanel value={tabValue} index={3}>
               <Card elevation={0}>

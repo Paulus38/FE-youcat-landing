@@ -1,3 +1,4 @@
+import { ExamParticipant } from './ExamParticipants.interface';
 import { Activity } from './RecentActivity.interface';
 
 export interface ProfileResponse {
@@ -9,27 +10,7 @@ export interface ProfileResponse {
     image?: string;
     is_google?: boolean; // Optional field for Google accounts
   };
-  ExamParticipants?: Array<{
-    id: number;
-    user_id: number;
-    duration: number;
-    score: number;
-    start_time: string;
-    end_time: string;
-    is_finished: number;
-    Exam?: {
-      id: number;
-      title: string;
-      duration: number;
-      total_question: number;
-      status: number;
-    };
-    UserAnswers?: Array<{
-      id: number;
-      selected_answer_id: number;
-      is_correct: number;
-    }>;
-  }>;
+  ExamParticipants?: ExamParticipant[];
 }
 
 export interface ProfileData {

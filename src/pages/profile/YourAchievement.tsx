@@ -17,6 +17,10 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 import { useLanguage } from '@/context/LanguageContext';
 import { useMemo } from 'react';
+import { ExamParticipant } from './types/ExamParticipants.interface';
+import { countCompletedDaysInLast7Days, fDate } from '@/utils/format-time';
+import dayjs from 'dayjs';
+import { calculateAchievements } from './utils';
 
 type Achievement = {
   key: string; //
@@ -28,56 +32,83 @@ type Achievement = {
   extraText?: string;
   avatarIcon: React.ReactNode;
 };
-
-const YourAchievements: React.FC = () => {
+interface YourAchievementProps {
+  examParticipants: ExamParticipant[];
+}
+const YourAchievements: React.FC<YourAchievementProps> = ({
+  examParticipants,
+}) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
+
+  // Tính số ngày đã hoàn thành trong 7 ngày gần nhất
+  const completedDays = useMemo(() => {
+    return countCompletedDaysInLast7Days(
+      examParticipants.map((ep) => fDate(ep.end_time)?.toString() || '')
+    );
+  }, [examParticipants]);
 
   // Giả lập trạng thái đạt được thành tựu
   const achievements: Achievement[] = useMemo(
     () => [
       {
         key: 'firstSteps',
-        iconColor: 'gold',
-        bgColor: 'common.black',
+        iconColor: '#FFC107',
+        bgColor: '#FFF7E0',
         title: t('firstSteps'),
         desc: t('firstStepsDesc'),
-        isEarned: true,
-        avatarIcon: <CheckCircleIcon fontSize='large' />,
+        isEarned: calculateAchievements(examParticipants).completedFirstSteps,
+        avatarIcon: (
+          <Avatar sx={{ bgcolor: '#FFF7E0', color: '#FFC107' }}>
+            <CheckCircleIcon fontSize='large' />
+          </Avatar>
+        ),
       },
       {
         key: 'perfectScore',
-        iconColor: 'gold',
-        bgColor: 'common.black',
+        iconColor: '#1976D2',
+        bgColor: '#E3F2FD',
         title: t('perfectScore'),
         desc: t('perfectScoreDesc'),
-        isEarned: true,
+        isEarned: calculateAchievements(examParticipants).perfectScore,
         extraText: t('notEarnedYet'),
-        avatarIcon: <EmojiEventsIcon fontSize='large' />,
+        avatarIcon: (
+          <Avatar sx={{ bgcolor: '#E3F2FD', color: '#1976D2' }}>
+            <EmojiEventsIcon fontSize='large' />
+          </Avatar>
+        ),
       },
       {
         key: 'quickLearner',
-        iconColor: 'bronze',
-        bgColor: 'common.white',
+        iconColor: '#9C27B0',
+        bgColor: '#F3E5F5',
         title: t('quickLearner'),
         desc: t('quickLearnerDesc'),
-        isEarned: true,
-        avatarIcon: <FlashOnIcon fontSize='large' />,
+        isEarned: calculateAchievements(examParticipants).quickLearner,
+        avatarIcon: (
+          <Avatar sx={{ bgcolor: '#F3E5F5', color: '#9C27B0' }}>
+            <FlashOnIcon fontSize='large' />
+          </Avatar>
+        ),
       },
       {
         key: 'dedicatedStudent',
-        iconColor: 'grey.400',
-        bgColor: 'common.white',
+        iconColor: '#388E3C',
+        bgColor: '#E8F5E9',
         title: t('dedicatedStudent'),
         desc: t('dedicatedStudentDesc'),
-        isEarned: false,
+        isEarned: calculateAchievements(examParticipants).dedicatedStudent,
         extraText: t('daysCompleted')
-          .replace('{current}', '3')
+          .replace('{current}', completedDays.toString())
           .replace('{total}', '7'),
-        avatarIcon: <CalendarTodayIcon fontSize='large' />,
+        avatarIcon: (
+          <Avatar sx={{ bgcolor: '#E8F5E9', color: '#388E3C' }}>
+            <CalendarTodayIcon fontSize='large' />
+          </Avatar>
+        ),
       },
     ],
-    [t]
+    [t, completedDays]
   );
 
   return (
