@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Container,
   Box,
@@ -41,27 +41,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import profileService, { ProfileData } from '../../services/profileService';
-import examService from '../../services/examService';
 import AvatarSection from '../../components/profile/AvatarSection';
-
-interface Question {
-  id?: number;
-  question: string;
-  userAnswer: string;
-  correctAnswer: string;
-  isCorrect: boolean;
-}
-
-interface Activity {
-  id: number;
-  quizId: string;
-  quizTitle: string;
-  score: number;
-  correctAnswers: number;
-  totalQuestions: number;
-  completedAt: string;
-  questions?: Question[];
-}
+import YourAchievements from './YourAchievement';
+import RecentActivity from './RecentActivity';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -86,7 +68,7 @@ const TabPanel = (props: TabPanelProps) => {
 };
 
 const ProfilePage: React.FC = () => {
-  const { user, logout, isAuthenticated, accessToken } = useAuth();
+  const { logout, isAuthenticated, accessToken } = useAuth();
   const navigate = useNavigate();
   const { t } = useLanguage();
   const [tabValue, setTabValue] = useState(0);
@@ -106,12 +88,6 @@ const ProfilePage: React.FC = () => {
     severity: 'success' as 'success' | 'error' | 'info' | 'warning',
   });
 
-  // State for quiz result detail dialog
-  const [resultDialogOpen, setResultDialogOpen] = useState(false);
-  const [selectedResult, setSelectedResult] = useState<Activity | null>(null);
-  const [detailedResult, setDetailedResult] = useState<any>(null);
-  const [resultLoading, setResultLoading] = useState(false);
-
   // Define fetchProfileData function using useCallback to avoid dependency issues
   const fetchProfileData = useCallback(async () => {
     if (!accessToken) return;
@@ -121,8 +97,17 @@ const ProfilePage: React.FC = () => {
       const response = await profileService.getProfile();
       setProfileData(response);
       setError(null);
+      setNotification({
+        open: true,
+        message: t('profileDataLoaded'),
+        severity: 'success',
+      });
     } catch (err: any) {
-      console.error('Error fetching profile data:', err);
+      setNotification({
+        open: true,
+        message: t('profileDataLoadError'),
+        severity: 'error',
+      });
       setError(err.response?.data?.message || 'Failed to load profile data');
     } finally {
       setLoading(false);
@@ -188,7 +173,7 @@ const ProfilePage: React.FC = () => {
 
       // Show success notification
       setNotification({
-        open: false,
+        open: true,
         message: t('profileUpdateSuccess'),
         severity: 'success',
       });
@@ -226,39 +211,7 @@ const ProfilePage: React.FC = () => {
     return profileData.statistics;
   };
 
-  const stats = calculateStatistics();
-
-  // Handle quiz result detail dialog open
-  const handleOpenResultDetail = async (activity: Activity) => {
-    setSelectedResult(activity);
-    setResultDialogOpen(true);
-    setResultLoading(true);
-
-    try {
-      // Fetch detailed quiz result from API using examService
-      const result = await examService.getExamResult(
-        activity.quizId,
-        activity.id
-      );
-      setDetailedResult(result.data);
-    } catch (error) {
-      console.error('Failed to load quiz result details:', error);
-      setNotification({
-        open: true,
-        message: t('failedToLoadQuizDetails'),
-        severity: 'error',
-      });
-    } finally {
-      setResultLoading(false);
-    }
-  };
-
-  // Handle quiz result detail dialog close
-  const handleCloseResultDetail = () => {
-    setSelectedResult(null);
-    setDetailedResult(null);
-    setResultDialogOpen(false);
-  };
+  const stats = useMemo(() => calculateStatistics(), [profileData]);
 
   if (loading) {
     return (
@@ -317,7 +270,7 @@ const ProfilePage: React.FC = () => {
               onLogout={handleLogout}
             />
           </Grid>
-
+          {/* Profile Info Section */}
           <Grid item xs={12} md={8}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tabs
@@ -349,7 +302,6 @@ const ProfilePage: React.FC = () => {
                 />
               </Tabs>
             </Box>
-
             <TabPanel value={tabValue} index={0}>
               <Card elevation={0} sx={{ mb: 3 }}>
                 <CardContent>
@@ -541,281 +493,18 @@ const ProfilePage: React.FC = () => {
                 </CardContent>
               </Card>
             </TabPanel>
-
+            {/*  Recent Activity Tab */}
             <TabPanel value={tabValue} index={1}>
-              <Card elevation={0}>
-                <CardContent>
-                  <Typography variant='h6' gutterBottom>
-                    {t('recentActivity')}
-                  </Typography>
-                  <Divider sx={{ mb: 2 }} />
-
-                  {profileData.activityHistory &&
-                  profileData.activityHistory.length > 0 ? (
-                    <List sx={{ width: '100%' }}>
-                      {profileData.activityHistory.map((activity, index) => (
-                        <ListItem
-                          key={`activity-${index}`}
-                          alignItems='flex-start'
-                          sx={{
-                            bgcolor: 'background.paper',
-                            mb: 1,
-                            borderRadius: 1,
-                            border: '1px solid',
-                            borderColor: 'divider',
-                            cursor: 'pointer',
-                            '&:hover': {
-                              bgcolor: 'action.hover',
-                            },
-                          }}
-                          onClick={() => handleOpenResultDetail(activity)}
-                          button
-                        >
-                          <ListItemIcon>
-                            <Avatar
-                              sx={{
-                                bgcolor:
-                                  activity.score >= 90
-                                    ? 'success.light'
-                                    : activity.score >= 70
-                                    ? 'warning.light'
-                                    : 'error.light',
-                              }}
-                            >
-                              Q
-                            </Avatar>
-                          </ListItemIcon>
-                          <ListItemText
-                            primary={activity.quizTitle}
-                            secondary={
-                              <React.Fragment>
-                                <Typography
-                                  component='span'
-                                  variant='body2'
-                                  color='text.primary'
-                                >
-                                  {t('score')}: {activity.score}% (
-                                  {activity.correctAnswers}/
-                                  {activity.totalQuestions})
-                                </Typography>
-                                {' — ' +
-                                  t('completedOn') +
-                                  ' ' +
-                                  new Date(
-                                    activity.completedAt
-                                  ).toLocaleDateString()}
-                              </React.Fragment>
-                            }
-                          />
-                        </ListItem>
-                      ))}
-                    </List>
-                  ) : (
-                    <Typography
-                      variant='body1'
-                      textAlign='center'
-                      color='text.secondary'
-                      sx={{ py: 4 }}
-                    >
-                      {t('noRecentActivity')}
-                    </Typography>
-                  )}
-
-                  {profileData.activityHistory &&
-                    profileData.activityHistory.length > 0 && (
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'center',
-                          mt: 3,
-                        }}
-                      >
-                        <Button
-                          variant='outlined'
-                          color='primary'
-                          onClick={() => navigate('/quiz')}
-                        >
-                          {t('viewAllHistory')}
-                        </Button>
-                      </Box>
-                    )}
-                </CardContent>
-              </Card>
+              <RecentActivity
+                profileData={profileData}
+                setNotification={setNotification}
+              />
             </TabPanel>
-
+            {/* Your Achievements Tab */}
             <TabPanel value={tabValue} index={2}>
-              <Card elevation={0}>
-                <CardContent>
-                  <Typography variant='h6' gutterBottom>
-                    {t('yourAchievements')}
-                  </Typography>
-                  <Divider sx={{ mb: 2 }} />
-
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6} md={4}>
-                      <Box
-                        sx={{
-                          p: 2,
-                          border: '1px solid',
-                          borderColor: 'divider',
-                          borderRadius: 2,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          textAlign: 'center',
-                        }}
-                      >
-                        <Avatar
-                          sx={{
-                            width: 60,
-                            height: 60,
-                            mb: 1,
-                            bgcolor: 'gold',
-                            color: 'common.black',
-                          }}
-                        >
-                          <TrophyIcon fontSize='large' />
-                        </Avatar>
-                        <Typography variant='subtitle1' fontWeight='bold'>
-                          {t('firstSteps')}
-                        </Typography>
-                        <Typography variant='body2' color='text.secondary'>
-                          {t('firstStepsDesc')}
-                        </Typography>
-                      </Box>
-                    </Grid>
-
-                    <Grid item xs={12} sm={6} md={4}>
-                      <Box
-                        sx={{
-                          p: 2,
-                          border: '1px solid',
-                          borderColor: 'divider',
-                          borderRadius: 2,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          textAlign: 'center',
-                          opacity: 0.6,
-                        }}
-                      >
-                        <Avatar
-                          sx={{
-                            width: 60,
-                            height: 60,
-                            mb: 1,
-                            bgcolor: 'silver',
-                          }}
-                        >
-                          <TrophyIcon fontSize='large' />
-                        </Avatar>
-                        <Typography variant='subtitle1' fontWeight='bold'>
-                          {t('perfectScore')}
-                        </Typography>
-                        <Typography variant='body2' color='text.secondary'>
-                          {t('perfectScoreDesc')}
-                        </Typography>
-                        <Typography
-                          variant='caption'
-                          color='primary'
-                          sx={{ mt: 1 }}
-                        >
-                          {t('notEarnedYet')}
-                        </Typography>
-                      </Box>
-                    </Grid>
-
-                    <Grid item xs={12} sm={6} md={4}>
-                      <Box
-                        sx={{
-                          p: 2,
-                          border: '1px solid',
-                          borderColor: 'divider',
-                          borderRadius: 2,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          textAlign: 'center',
-                        }}
-                      >
-                        <Avatar
-                          sx={{
-                            width: 60,
-                            height: 60,
-                            mb: 1,
-                            bgcolor: 'bronze',
-                            color: 'common.white',
-                          }}
-                        >
-                          <TrophyIcon fontSize='large' />
-                        </Avatar>
-                        <Typography variant='subtitle1' fontWeight='bold'>
-                          {t('quickLearner')}
-                        </Typography>
-                        <Typography variant='body2' color='text.secondary'>
-                          {t('quickLearnerDesc')}
-                        </Typography>
-                      </Box>
-                    </Grid>
-
-                    <Grid item xs={12} sm={6} md={4}>
-                      <Box
-                        sx={{
-                          p: 2,
-                          border: '1px solid',
-                          borderColor: 'divider',
-                          borderRadius: 2,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          textAlign: 'center',
-                          opacity: 0.6,
-                        }}
-                      >
-                        <Avatar
-                          sx={{
-                            width: 60,
-                            height: 60,
-                            mb: 1,
-                            bgcolor: 'grey.400',
-                          }}
-                        >
-                          <TrophyIcon fontSize='large' />
-                        </Avatar>
-                        <Typography variant='subtitle1' fontWeight='bold'>
-                          {t('dedicatedStudent')}
-                        </Typography>
-                        <Typography variant='body2' color='text.secondary'>
-                          {t('dedicatedStudentDesc')}
-                        </Typography>
-                        <Typography
-                          variant='caption'
-                          color='primary'
-                          sx={{ mt: 1 }}
-                        >
-                          {t('daysCompleted')
-                            .replace('{current}', '3')
-                            .replace('{total}', '7')}
-                        </Typography>
-                      </Box>
-                    </Grid>
-                  </Grid>
-
-                  <Box
-                    sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}
-                  >
-                    <Button
-                      variant='contained'
-                      color='primary'
-                      onClick={() => navigate('/quiz')}
-                    >
-                      {t('earnMoreAchievements')}
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Card>
+              <YourAchievements />
             </TabPanel>
-
+            {/* Settings Tab */}
             <TabPanel value={tabValue} index={3}>
               <Card elevation={0}>
                 <CardContent>
@@ -916,336 +605,6 @@ const ProfilePage: React.FC = () => {
           {notification.message}
         </Alert>
       </Snackbar>
-
-      {/* Quiz Result Detail Dialog */}
-      <Dialog
-        open={resultDialogOpen}
-        onClose={handleCloseResultDetail}
-        maxWidth='md'
-        fullWidth
-      >
-        <DialogTitle>
-          {detailedResult?.title ||
-            selectedResult?.quizTitle ||
-            t('quizResult')}
-          <IconButton
-            aria-label='close'
-            onClick={handleCloseResultDetail}
-            sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8,
-              color: 'grey.500',
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent dividers>
-          {resultLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <CircularProgress />
-            </Box>
-          ) : (
-            <>
-              {(detailedResult || selectedResult) && (
-                <>
-                  <Box sx={{ mb: 3 }}>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} sm={6} md={3}>
-                        <Box
-                          sx={{
-                            textAlign: 'center',
-                            p: 2,
-                            bgcolor: 'primary.light',
-                            borderRadius: 2,
-                          }}
-                        >
-                          <Typography
-                            variant='h4'
-                            color='primary.contrastText'
-                            fontWeight='bold'
-                          >
-                            {detailedResult?.score ||
-                              selectedResult?.score ||
-                              0}
-                            %
-                          </Typography>
-                          <Typography
-                            variant='body2'
-                            color='primary.contrastText'
-                          >
-                            {t('finalScore')}
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid item xs={12} sm={6} md={3}>
-                        <Box
-                          sx={{
-                            textAlign: 'center',
-                            p: 2,
-                            bgcolor: 'success.light',
-                            borderRadius: 2,
-                          }}
-                        >
-                          <Typography
-                            variant='h4'
-                            color='success.contrastText'
-                            fontWeight='bold'
-                          >
-                            {detailedResult?.correctAnswers ||
-                              detailedResult?.ExamParticipants?.[0]?.UserAnswers?.filter(
-                                (a: any) => a.is_correct === 1
-                              ).length ||
-                              selectedResult?.correctAnswers ||
-                              0}
-                          </Typography>
-                          <Typography
-                            variant='body2'
-                            color='success.contrastText'
-                          >
-                            {t('correctAnswers')}
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid item xs={12} sm={6} md={3}>
-                        <Box
-                          sx={{
-                            textAlign: 'center',
-                            p: 2,
-                            bgcolor: 'error.light',
-                            borderRadius: 2,
-                          }}
-                        >
-                          <Typography
-                            variant='h4'
-                            color='error.contrastText'
-                            fontWeight='bold'
-                          >
-                            {(() => {
-                              const total =
-                                detailedResult?.total_question ||
-                                detailedResult?.ExamQuestions?.length ||
-                                selectedResult?.totalQuestions ||
-                                0;
-                              const correct =
-                                detailedResult?.correctAnswers ||
-                                detailedResult?.ExamParticipants?.[0]?.UserAnswers?.filter(
-                                  (a: any) => a.is_correct === 1
-                                ).length ||
-                                selectedResult?.correctAnswers ||
-                                0;
-                              return total - correct;
-                            })()}
-                          </Typography>
-                          <Typography
-                            variant='body2'
-                            color='error.contrastText'
-                          >
-                            {t('incorrectAnswers')}
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid item xs={12} sm={6} md={3}>
-                        <Box
-                          sx={{
-                            textAlign: 'center',
-                            p: 2,
-                            bgcolor: 'info.light',
-                            borderRadius: 2,
-                          }}
-                        >
-                          <Typography
-                            variant='h4'
-                            color='info.contrastText'
-                            fontWeight='bold'
-                          >
-                            {detailedResult?.total_question ||
-                              detailedResult?.ExamQuestions?.length ||
-                              selectedResult?.totalQuestions ||
-                              0}
-                          </Typography>
-                          <Typography variant='body2' color='info.contrastText'>
-                            {t('totalQuestions')}
-                          </Typography>
-                        </Box>
-                      </Grid>
-                    </Grid>
-                  </Box>
-
-                  <Typography variant='h6' gutterBottom>
-                    {t('quizSummary')}
-                  </Typography>
-                  <Divider sx={{ mb: 2 }} />
-
-                  {detailedResult?.ExamQuestions?.length ||
-                  detailedResult?.questions?.length ||
-                  selectedResult?.questions?.length ? (
-                    <List>
-                      {(
-                        detailedResult?.ExamQuestions ||
-                        detailedResult?.questions ||
-                        selectedResult?.questions ||
-                        []
-                      ).map((question: any, index: number) => {
-                        // Find user answer data for this question
-                        const userAnswerData =
-                          detailedResult?.ExamParticipants?.[0]?.UserAnswers?.find(
-                            (ua: any) => ua.exam_question_id === question.id
-                          );
-
-                        // Get selected answer ID from UserAnswers
-                        const userAnswerId = userAnswerData?.selected_answer_id;
-
-                        // Find the full answer object from ExamAnswers
-                        const userAnswer = question.ExamAnswers?.find(
-                          (a: any) => a.id === userAnswerId
-                        );
-
-                        // Find correct answer from ExamAnswers (where is_correct = 1)
-                        const correctAnswer = question.ExamAnswers?.find(
-                          (a: any) => a.is_correct === 1
-                        );
-
-                        // Check if user's answer is correct
-                        const isCorrect = userAnswerData?.is_correct === 1;
-
-                        return (
-                          <ListItem
-                            key={`question-${index}`}
-                            sx={{
-                              mb: 2,
-                              bgcolor: isCorrect ? 'success.50' : 'error.50',
-                              borderRadius: 1,
-                              border: '1px solid',
-                              borderColor: isCorrect
-                                ? 'success.200'
-                                : 'error.200',
-                            }}
-                          >
-                            <ListItemText
-                              primary={
-                                <Box
-                                  sx={{ display: 'flex', alignItems: 'center' }}
-                                >
-                                  <Box
-                                    component='span'
-                                    sx={{
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      width: 24,
-                                      height: 24,
-                                      borderRadius: '50%',
-                                      bgcolor: isCorrect
-                                        ? 'success.main'
-                                        : 'error.main',
-                                      color: 'white',
-                                      mr: 1,
-                                      fontSize: '0.75rem',
-                                    }}
-                                  >
-                                    {index + 1}
-                                  </Box>
-                                  <Typography fontWeight='medium'>
-                                    {question.content || question.question}
-                                    {question.Question?.name &&
-                                      question.Question.name !==
-                                        question.content && (
-                                        <Box
-                                          component='span'
-                                          sx={{
-                                            display: 'block',
-                                            mt: 1,
-                                            color: 'text.secondary',
-                                            fontSize: '0.9rem',
-                                          }}
-                                        >
-                                          {question.Question.name}
-                                        </Box>
-                                      )}
-                                  </Typography>
-                                </Box>
-                              }
-                              secondary={
-                                <>
-                                  <Box sx={{ mt: 1 }}>
-                                    <Typography
-                                      variant='body2'
-                                      color='text.secondary'
-                                    >
-                                      {t('yourAnswer')}:{' '}
-                                      <Typography
-                                        component='span'
-                                        color={
-                                          isCorrect
-                                            ? 'success.main'
-                                            : 'error.main'
-                                        }
-                                        fontWeight='medium'
-                                      >
-                                        {userAnswer?.content
-                                          ? `${userAnswer.code_option}. ${userAnswer.content}`
-                                          : t('noAnswer')}
-                                      </Typography>
-                                    </Typography>
-                                    {!isCorrect && (
-                                      <Typography
-                                        variant='body2'
-                                        color='text.secondary'
-                                      >
-                                        {t('correctAnswer')} (Đáp án đúng):{' '}
-                                        <Typography
-                                          component='span'
-                                          color='success.main'
-                                          fontWeight='medium'
-                                        >
-                                          {correctAnswer?.content
-                                            ? `${correctAnswer.code_option}. ${correctAnswer.content}`
-                                            : t('notAvailable')}
-                                        </Typography>
-                                      </Typography>
-                                    )}
-                                  </Box>
-                                </>
-                              }
-                            />
-                          </ListItem>
-                        );
-                      })}
-                    </List>
-                  ) : (
-                    <Typography
-                      variant='body1'
-                      color='text.secondary'
-                      textAlign='center'
-                      sx={{ py: 2 }}
-                    >
-                      {t('detailedResultsNotAvailable')}
-                    </Typography>
-                  )}
-                </>
-              )}
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseResultDetail} color='primary'>
-            {t('close')}
-          </Button>
-          <Button
-            variant='contained'
-            color='primary'
-            onClick={() => {
-              // Get the exam ID from the appropriate source
-              const examId = detailedResult?.id || selectedResult?.quizId;
-              navigate(`/quiz/${examId}`);
-            }}
-          >
-            {t('retakeQuiz')}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Container>
   );
 };

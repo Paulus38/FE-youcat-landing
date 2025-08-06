@@ -473,6 +473,14 @@ const translations: Translations = {
     en: 'Failed to update profile',
     vi: 'Cập nhật hồ sơ thất bại',
   },
+  profileDataLoadError: {
+    en: 'Failed to load profile data',
+    vi: 'Không thể tải dữ liệu hồ sơ',
+  },
+  profileDataLoaded: {
+    en: 'Profile data loaded successfully',
+    vi: 'Dữ liệu hồ sơ đã được tải thành công',
+  },
   // Create Exam page
   createYourPracticeTest: {
     en: 'Create Your Practice Test',

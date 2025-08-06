@@ -8,12 +8,15 @@ export { sampleQuestions } from './data/sampleQuestions';
 export type { QuizQuestion } from './data/sampleQuestions';
 
 // Utility exports
-export { 
+export {
   getRandomQuestions,
   generateRandomUserAnswers,
-  generateMockExamResult
+  // generateMockExamResult
 } from './utils/examUtils';
-export type { UserAnswer, ExamResult } from './utils/examUtils';
+export type {
+  UserAnswer,
+  //!  ExamResult
+} from './utils/examUtils';
 
 // Quiz utility exports
-export { getRandomQuestions as getRandomQuizQuestions } from './utils/quizUtils'; 
+export { getRandomQuestions as getRandomQuizQuestions } from './utils/quizUtils';

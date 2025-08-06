@@ -29,14 +29,14 @@ export interface ExamResponse {
   };
 }
 
-export interface ExamResult {
-  id: string;
-  score: number;
-  totalQuestions: number;
-  correctAnswers: number;
-  completedAt: string;
-  [key: string]: any;
-}
+//! export interface ExamResult {
+//   id: string;
+//   score: number;
+//   totalQuestions: number;
+//   correctAnswers: number;
+//   completedAt: string;
+//   [key: string]: any;
+// }
 
 // Interface for predefined exams
 export interface PredefinedExam {
