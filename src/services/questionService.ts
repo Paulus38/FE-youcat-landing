@@ -5,7 +5,7 @@ export const questionApi = {
     return axiosInstance.get('/questions', { params });
   },
 
-  getQuestionById: (id: string | number) => {
+  getQuestionById: (id?: string | number) => {
     return axiosInstance.get(`/questions/${id}`);
   },
 

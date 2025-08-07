@@ -262,7 +262,9 @@ const QuizListPage: React.FC = () => {
 
   // Navigate to question detail
   const handleViewDetail = (question_id: number) => {
-    navigate(`/quiz/detail/${question_id}`);
+    navigate(`/quiz/detail/${question_id}`, {
+      state: { total: totalItems, fromQuizList: true },
+    });
   };
   // Start a quiz with this question
   const handleStartQuiz = (question_id: number) => {

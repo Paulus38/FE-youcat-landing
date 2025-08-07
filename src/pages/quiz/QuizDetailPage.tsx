@@ -4,8 +4,6 @@ import {
   Container,
   Typography,
   Paper,
-  Breadcrumbs,
-  Link,
   Divider,
   Chip,
   CircularProgress,
@@ -23,10 +21,6 @@ import {
   Alert,
 } from '@mui/material';
 import {
-  ArrowBack,
-  Home as HomeIcon,
-  LibraryBooks as LibraryIcon,
-  Quiz as QuizIcon,
   Share as ShareIcon,
   Bookmark as BookmarkIcon,
   BookmarkBorder as BookmarkBorderIcon,
@@ -38,60 +32,33 @@ import {
   Telegram as TelegramIcon,
   Email as EmailIcon,
   Close as CloseIcon,
+  SkipNext,
+  SkipPrevious,
 } from '@mui/icons-material';
-import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
+import {
+  useParams,
+  useNavigate,
+  Link as RouterLink,
+  useLocation,
+} from 'react-router-dom';
 import { questionApi } from '@/services/QuestionService';
 import { useLanguage } from '@context/LanguageContext';
 import {
   Question,
   QuestionDetailResponse,
 } from '@interfaces/Question.interface';
-import giaoLy1 from '@/assets/images/question_backgrounds/giao-ly-1.jpg';
-import giaoLy2 from '@/assets/images/question_backgrounds/giao-ly-2.jpg';
-import giaoLy3 from '@/assets/images/question_backgrounds/giao-ly-3.jpg';
-import giaoLy4 from '@/assets/images/question_backgrounds/giao-ly-4.png';
-import giaoLy5 from '@/assets/images/question_backgrounds/giao-ly-5.png';
-import giaoLy6 from '@/assets/images/question_backgrounds/giao-ly-6.jpeg';
-import giaoLy7 from '@/assets/images/question_backgrounds/giao-ly-7.jpg';
-import giaoLy9 from '@/assets/images/question_backgrounds/giao-ly-9.jpg';
-import giaoLy10 from '@/assets/images/question_backgrounds/giao-ly-10.jpg';
-
-// Array of background images with their suitable text colors
-const backgroundOptions = [
-  {
-    url: giaoLy1, // Local Catholic image 1
-  },
-  {
-    url: giaoLy2, // Local Catholic image 2
-  },
-  {
-    url: giaoLy3, // Local Catholic image 3
-  },
-  {
-    url: giaoLy4, // Local Catholic image 4
-  },
-  {
-    url: giaoLy5, // Local Catholic image 5
-  },
-  {
-    url: giaoLy6, // Local Catholic image 6
-  },
-  {
-    url: giaoLy7, // Local Catholic image 7
-  },
-  {
-    url: giaoLy9, // Local Catholic image 9
-  },
-  {
-    url: giaoLy10, // Local Catholic image 10
-  },
-];
+import { backgroundOptions } from '@/mocks/data/backgroundQuizDetail';
 
 const QuizDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+
+  const location = useLocation();
+  const isQuizList = location.state?.fromQuizList || false;
+  const totalItems = location.state?.total || 0;
+
   const navigate = useNavigate();
   const theme = useTheme();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const [question, setQuestion] = useState<Question | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -104,18 +71,9 @@ const QuizDetailPage: React.FC = () => {
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
   const [canUseShareApi, setCanUseShareApi] = useState<boolean>(false);
 
-  // Function to change background randomly
-  const changeBackground = () => {
-    let newIndex;
-    do {
-      newIndex = Math.floor(Math.random() * backgroundOptions.length);
-    } while (
-      backgroundOptions[newIndex].url === background.url &&
-      backgroundOptions.length > 1
-    );
-
-    setBackground(backgroundOptions[newIndex]);
-  };
+  const [currentBackgroundIndex, setCurrentBackgroundIndex] = useState<number>(
+    Math.floor(Math.random() * backgroundOptions.length)
+  );
 
   // Color mapping for parts
   const partColors: Record<string, string> = {
@@ -130,29 +88,28 @@ const QuizDetailPage: React.FC = () => {
   };
 
   // Fetch question details
-  useEffect(() => {
-    const fetchQuestionDetail = async () => {
-      if (!id) return;
+  const fetchQuestionDetail = async (id: string) => {
+    if (!id) return;
 
-      try {
-        setLoading(true);
-        const response = await questionApi.getQuestionById(id);
-        const data = response.data as QuestionDetailResponse;
+    try {
+      setLoading(true);
+      const response = await questionApi.getQuestionById(id);
+      const data = response.data as QuestionDetailResponse;
 
-        if (data.statusCode === 200) {
-          setQuestion(data.data);
-        } else {
-          setError(data.message || 'Failed to fetch question details');
-        }
-      } catch (error) {
-        console.error('Error fetching question details:', error);
-        setError('Failed to load question details. Please try again later.');
-      } finally {
-        setLoading(false);
+      if (data.statusCode === 200) {
+        setQuestion(data.data);
+      } else {
+        setError(data.message || 'Failed to fetch question details');
       }
-    };
-
-    fetchQuestionDetail();
+    } catch (error) {
+      setError('Failed to load question details. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (!id) return;
+    fetchQuestionDetail(id);
   }, [id]);
 
   // Add this useEffect to check if the Web Share API is available
@@ -163,6 +120,10 @@ const QuizDetailPage: React.FC = () => {
         typeof navigator.share === 'function'
     );
   }, []);
+  // Change background when currentBackgroundIndex changes
+  useEffect(() => {
+    setBackground(backgroundOptions[currentBackgroundIndex]);
+  }, [currentBackgroundIndex]);
 
   // Handle bookmark toggle
   const handleBookmarkToggle = () => {
@@ -263,6 +224,10 @@ const QuizDetailPage: React.FC = () => {
 
   // Go back to the quiz list
   const handleGoBack = () => {
+    if (isQuizList) {
+      navigate('/quiz/list');
+      return;
+    }
     navigate(-1);
   };
 
@@ -273,6 +238,25 @@ const QuizDetailPage: React.FC = () => {
     }
   };
 
+  const handleNextQuestion = () => {
+    const newId = parseInt(id || '0') + 1;
+    console.log('New ID:', totalItems);
+    if (newId > totalItems) {
+      // Assuming there are 100 questions, adjust as needed
+      setSnackbarMessage(t('noMoreQuestions'));
+      setSnackbarOpen(true);
+      return;
+    }
+    navigate(`/quiz/detail/${newId}`);
+  };
+  const handlePreviousQuestion = () => {
+    if (!id || parseInt(id) <= 1) {
+      setSnackbarMessage(t('noPreviousQuestion'));
+      setSnackbarOpen(true);
+      return;
+    }
+    navigate(`/quiz/detail/${parseInt(id) - 1}`);
+  };
   // Render content based on loading/error state
   const renderContent = () => {
     if (loading) {
@@ -313,270 +297,187 @@ const QuizDetailPage: React.FC = () => {
             mb: 4,
             borderRadius: 4,
             overflow: 'hidden',
-            position: 'relative',
           }}
         >
           {/* Question header with background image */}
           <Box
             sx={{
-              position: 'relative',
-              backgroundImage: `url(${background.url})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              p: 6,
-              color: 'white',
-              textShadow: '1px 1px 4px rgba(0, 0, 0, 0.8)',
-              overflow: 'hidden',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.65)',
-                zIndex: 0,
-              },
-              '&::after': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundImage: `url(${background.url})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                opacity: 0.4,
-                zIndex: -1,
-                animation: 'zoomBg 30s infinite alternate',
-                '@keyframes zoomBg': {
-                  '0%': { transform: 'scale(1)' },
-                  '100%': { transform: 'scale(1.1)' },
-                },
-              },
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              textAlign: 'center',
+              p: 3,
             }}
           >
-            {/* Content container to ensure it's above the overlay */}
-            <Box sx={{ position: 'relative', zIndex: 1 }}>
-              <Box
+            {/* Index name - top left */}
+            <Box
+              sx={{
+                alignSelf: 'flex-start',
+                mb: 2,
+                px: 2,
+                py: 1,
+                backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                borderRadius: 1,
+              }}
+            >
+              <Typography
+                variant='overline'
                 sx={{
-                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                  backdropFilter: 'blur(3px)',
-                  padding: 3,
-                  borderRadius: 2,
-                  maxWidth: '800px',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)',
+                  color: '#fff',
+                  fontWeight: 'bold',
+                  letterSpacing: 1.5,
                 }}
               >
-                <Typography
-                  variant='overline'
-                  sx={{
-                    opacity: 1,
-                    color: '#fff',
-                    fontWeight: 'bold',
-                    letterSpacing: 1.5,
-                  }}
-                >
-                  {question.index_name}
-                </Typography>
-                <Typography
-                  variant='h3'
-                  component='h1'
-                  gutterBottom
-                  sx={{
-                    fontWeight: 'bold',
-                    fontSize: { xs: '1.75rem', sm: '2.5rem', md: '3rem' },
-                    color: '#fff',
-                    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)',
-                  }}
-                >
-                  {question.name}
-                </Typography>
-              </Box>
+                {question.index_name}
+              </Typography>
+            </Box>
 
-              {/* Hierarchy path */}
-              <Box
+            {/* Background image with slider controls */}
+            <Box
+              sx={{
+                position: 'relative',
+                width: { xs: '100%', sm: 500, md: 640 },
+                height: { xs: 220, sm: 300, md: 360 },
+                mb: 4,
+                borderRadius: 3,
+                overflow: 'hidden',
+                boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
+              }}
+            >
+              <img
+                src={background.url}
+                alt='Background'
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  borderRadius: '12px',
+                }}
+              />
+
+              {/* Left arrow */}
+              <IconButton
+                onClick={() =>
+                  setCurrentBackgroundIndex((prev) =>
+                    prev === 0 ? backgroundOptions.length - 1 : prev - 1
+                  )
+                }
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  gap: 1,
-                  mb: 2,
-                  mt: 3,
-                  opacity: 1,
-                  backgroundColor: 'rgba(0, 0, 0, 0.4)',
-                  padding: 2,
-                  borderRadius: 2,
-                  maxWidth: '800px',
+                  position: 'absolute',
+                  top: '50%',
+                  left: 12,
+                  transform: 'translateY(-50%)',
+                  bgcolor: 'rgba(0,0,0,0.4)',
+                  color: 'white',
+                  '&:hover': { bgcolor: 'rgba(0,0,0,0.6)' },
                 }}
               >
-                <Chip
-                  label={question.Chapter.Section.Part.Book.name}
-                  size='small'
-                  sx={{
-                    bgcolor: 'rgba(255, 255, 255, 0.3)',
-                    color: '#fff',
-                    fontWeight: 'bold',
-                    mr: 1,
-                  }}
-                />
-                <Typography
-                  variant='body2'
-                  sx={{ color: 'rgba(255, 255, 255, 0.9)' }}
-                >
-                  →
-                </Typography>
-                <Chip
-                  label={question.Chapter.Section.Part.index_name}
-                  size='small'
-                  sx={{
-                    bgcolor: question.Chapter.Section.Part
-                      ? `${getPartColor(
-                          question.Chapter.Section.Part.index_name
-                        )}B0`
-                      : 'rgba(255, 255, 255, 0.3)',
-                    color: '#fff',
-                    fontWeight: 'bold',
-                  }}
-                />
-                <Typography
-                  variant='body2'
-                  sx={{ color: 'rgba(255, 255, 255, 0.9)' }}
-                >
-                  →
-                </Typography>
-                <Chip
-                  label={question.Chapter.Section.index_name}
-                  size='small'
-                  sx={{
-                    bgcolor: 'rgba(255, 255, 255, 0.3)',
-                    color: '#fff',
-                    fontWeight: 'bold',
-                  }}
-                />
-                <Typography
-                  variant='body2'
-                  sx={{ color: 'rgba(255, 255, 255, 0.9)' }}
-                >
-                  →
-                </Typography>
-                <Chip
-                  label={question.Chapter.index_name}
-                  size='small'
-                  sx={{
-                    bgcolor: 'rgba(255, 255, 255, 0.3)',
-                    color: '#fff',
-                    fontWeight: 'bold',
-                  }}
-                />
-              </Box>
+                <SkipPrevious />
+              </IconButton>
 
-              {/* Action buttons */}
-              <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
-                <Button
-                  variant='contained'
-                  color='primary'
-                  size='large'
-                  startIcon={<PlayIcon />}
-                  onClick={handleStartQuiz}
-                  sx={{
-                    boxShadow: 3,
-                    '&:hover': { boxShadow: 6 },
-                  }}
-                >
-                  {t('startQuiz')}
-                </Button>
+              {/* Right arrow as BUTTON */}
+              <Button
+                onClick={() =>
+                  setCurrentBackgroundIndex((prev) =>
+                    prev === backgroundOptions.length - 1 ? 0 : prev + 1
+                  )
+                }
+                variant='contained'
+                color='primary'
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  right: 12,
+                  transform: 'translateY(-50%)',
+                  minWidth: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  padding: 0,
+                  fontWeight: 'bold',
+                  fontSize: '1.5rem',
+                  lineHeight: 1,
+                }}
+              >
+                <SkipNext />
+              </Button>
+            </Box>
 
-                <IconButton
-                  sx={{
-                    color: 'white',
-                    bgcolor: 'rgba(0, 0, 0, 0.4)',
-                    '&:hover': { bgcolor: 'rgba(0, 0, 0, 0.6)' },
-                  }}
-                  onClick={handleBookmarkToggle}
-                  aria-label={bookmarked ? t('removeBookmark') : t('bookmark')}
-                >
-                  {bookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
-                </IconButton>
+            {/* Action buttons under image */}
+            <Box
+              sx={{
+                display: 'flex',
+                gap: 2,
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                alignItems: 'center',
+                mb: 4,
+              }}
+            >
+              <Button
+                variant='contained'
+                color='primary'
+                startIcon={<PlayIcon />}
+                onClick={handleStartQuiz}
+              >
+                {t('startQuiz')}
+              </Button>
 
-                <IconButton
-                  sx={{
-                    color: 'white',
-                    bgcolor: 'rgba(0, 0, 0, 0.4)',
-                    '&:hover': { bgcolor: 'rgba(0, 0, 0, 0.6)' },
-                  }}
-                  onClick={handleShare}
-                  aria-label={t('share')}
-                >
-                  <ShareIcon />
-                </IconButton>
+              <IconButton
+                onClick={handleBookmarkToggle}
+                aria-label={bookmarked ? t('removeBookmark') : t('bookmark')}
+                sx={{
+                  bgcolor: 'rgba(0,0,0,0.2)',
+                  '&:hover': { bgcolor: 'rgba(0,0,0,0.4)' },
+                }}
+              >
+                {bookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+              </IconButton>
 
-                <Button
-                  variant='outlined'
-                  size='small'
-                  onClick={changeBackground}
-                  sx={{
-                    color: 'white',
-                    borderColor: 'white',
-                    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-                    '&:hover': {
-                      borderColor: 'white',
-                      bgcolor: 'rgba(0, 0, 0, 0.6)',
-                    },
-                  }}
-                >
-                  {t('changeBackground')}
-                </Button>
-              </Box>
+              <IconButton
+                onClick={handleShare}
+                aria-label={t('share')}
+                sx={{
+                  bgcolor: 'rgba(0,0,0,0.2)',
+                  '&:hover': { bgcolor: 'rgba(0,0,0,0.4)' },
+                }}
+              >
+                <ShareIcon />
+              </IconButton>
             </Box>
           </Box>
 
+          {/* Question description and answers */}
           <Box sx={{ p: 4 }}>
-            {/* Question description */}
-            {question.description && (
-              <Box sx={{ mb: 4 }}>
-                <Typography
-                  variant='h6'
-                  color='primary'
-                  gutterBottom
-                  sx={{ fontWeight: 'bold' }}
-                >
-                  {t('description')}
-                </Typography>
-                <Typography
-                  variant='body1'
-                  sx={{
-                    whiteSpace: 'pre-wrap',
-                    fontSize: '1.1rem',
-                    lineHeight: 1.7,
-                  }}
-                >
-                  {question.description}
-                </Typography>
-              </Box>
-            )}
+            <Box>
+              <Typography
+                variant='h5'
+                color='primary'
+                gutterBottom
+                sx={{ fontWeight: 'bold' }}
+              >
+                {t('question')}
+              </Typography>
 
-            {!question.description && (
-              <Box sx={{ mb: 4 }}>
-                <Typography
-                  variant='h6'
-                  color='primary'
-                  gutterBottom
-                  sx={{ fontWeight: 'bold' }}
-                >
-                  {t('description')}
-                </Typography>
-                <Typography
-                  variant='body1'
-                  color='text.secondary'
-                  fontStyle='italic'
-                >
-                  {t('noDescription')}
-                </Typography>
-              </Box>
-            )}
-
+              <Card
+                variant='outlined'
+                sx={{
+                  borderRadius: 2,
+                  bgcolor: theme.palette.primary.light + '15',
+                  border: `1px solid ${theme.palette.primary.light}`,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Typography
+                    variant='body1'
+                    paragraph
+                    sx={{ fontSize: '1.1rem', lineHeight: 1.7 }}
+                  >
+                    {question.name}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Box>
             <Divider sx={{ my: 3 }} />
 
             {/* Answer section */}
@@ -645,6 +546,71 @@ const QuizDetailPage: React.FC = () => {
                   {t('noAnswerProvided')}
                 </Typography>
               )}
+            </Box>
+
+            <Divider sx={{ my: 3 }} />
+
+            {/* Question description */}
+            {question.description && (
+              <Box sx={{ mb: 4 }}>
+                <Typography
+                  variant='h6'
+                  color='primary'
+                  gutterBottom
+                  sx={{ fontWeight: 'bold' }}
+                >
+                  {t('description')}
+                </Typography>
+                <Typography
+                  variant='body1'
+                  sx={{
+                    whiteSpace: 'pre-wrap',
+                    fontSize: '1.1rem',
+                    lineHeight: 1.7,
+                  }}
+                >
+                  {question.description}
+                </Typography>
+              </Box>
+            )}
+
+            {!question.description && (
+              <Box sx={{ mb: 4 }}>
+                <Typography
+                  variant='h6'
+                  color='primary'
+                  gutterBottom
+                  sx={{ fontWeight: 'bold' }}
+                >
+                  {t('description')}
+                </Typography>
+                <Typography
+                  variant='body1'
+                  color='text.secondary'
+                  fontStyle='italic'
+                >
+                  {t('noDescription')}
+                </Typography>
+              </Box>
+            )}
+            {/* button next and previos */}
+            <Box
+              sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}
+            >
+              <Button
+                variant='outlined'
+                disabled={!id}
+                onClick={handlePreviousQuestion}
+              >
+                ← {t('previous')}
+              </Button>
+              <Button
+                variant='outlined'
+                disabled={!id}
+                onClick={handleNextQuestion}
+              >
+                {t('next')} →
+              </Button>
             </Box>
           </Box>
         </Paper>
@@ -812,43 +778,80 @@ const QuizDetailPage: React.FC = () => {
     <Container maxWidth='lg' sx={{ py: 4 }}>
       {/* Breadcrumbs navigation */}
       <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
-        <IconButton
-          sx={{ mr: 2 }}
-          onClick={handleGoBack}
-          aria-label={t('goBack')}
+        {/* Hierarchy path */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 1,
+            mb: 2,
+            mt: 3,
+            opacity: 1,
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            padding: 2,
+            borderRadius: 2,
+            maxWidth: '800px',
+          }}
         >
-          <ArrowBack />
-        </IconButton>
-
-        <Breadcrumbs separator='›'>
-          <Link
-            component={RouterLink}
-            to='/'
-            underline='hover'
-            color='inherit'
-            sx={{ display: 'flex', alignItems: 'center' }}
-          >
-            <HomeIcon sx={{ mr: 0.5, fontSize: 20 }} />
-            {t('home')}
-          </Link>
-          <Link
-            component={RouterLink}
-            to='/quiz'
-            underline='hover'
-            color='inherit'
-            sx={{ display: 'flex', alignItems: 'center' }}
-          >
-            <QuizIcon sx={{ mr: 0.5, fontSize: 20 }} />
-            {t('quizzes')}
-          </Link>
+          <Chip
+            label={question?.Chapter.Section.Part.Book.name}
+            size='small'
+            sx={{
+              bgcolor: 'rgba(255, 255, 255, 0.3)',
+              color: '#fff',
+              fontWeight: 'bold',
+              mr: 1,
+            }}
+          />
           <Typography
-            color='text.primary'
-            sx={{ display: 'flex', alignItems: 'center' }}
+            variant='body2'
+            sx={{ color: 'rgba(255, 255, 255, 0.9)' }}
           >
-            <LibraryIcon sx={{ mr: 0.5, fontSize: 20 }} />
-            {t('detail')}
+            →
           </Typography>
-        </Breadcrumbs>
+          <Chip
+            label={question?.Chapter.Section.Part.index_name}
+            size='small'
+            sx={{
+              bgcolor: question?.Chapter.Section.Part
+                ? `${getPartColor(question?.Chapter.Section.Part.index_name)}B0`
+                : 'rgba(255, 255, 255, 0.3)',
+              color: '#fff',
+              fontWeight: 'bold',
+            }}
+          />
+          <Typography
+            variant='body2'
+            sx={{ color: 'rgba(255, 255, 255, 0.9)' }}
+          >
+            →
+          </Typography>
+          <Chip
+            label={question?.Chapter.Section.index_name}
+            size='small'
+            sx={{
+              bgcolor: 'rgba(255, 255, 255, 0.3)',
+              color: '#fff',
+              fontWeight: 'bold',
+            }}
+          />
+          <Typography
+            variant='body2'
+            sx={{ color: 'rgba(255, 255, 255, 0.9)' }}
+          >
+            →
+          </Typography>
+          <Chip
+            label={question?.Chapter.index_name}
+            size='small'
+            sx={{
+              bgcolor: 'rgba(255, 255, 255, 0.3)',
+              color: '#fff',
+              fontWeight: 'bold',
+            }}
+          />
+        </Box>
       </Box>
 
       {renderContent()}

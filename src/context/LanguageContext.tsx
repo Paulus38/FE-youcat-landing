@@ -15,6 +15,14 @@ const translations: Translations = {
     vi: 'Giáo Lý',
     en: 'Catechism',
   },
+  question: {
+    en: 'Question',
+    vi: 'Câu Hỏi',
+  },
+  goBack: {
+    en: 'Go Back',
+    vi: 'Quay Lại',
+  },
   delete: {
     en: 'Delete',
     vi: 'Xóa',
@@ -513,6 +521,14 @@ const translations: Translations = {
   customizeYourQuiz: {
     en: 'Customize your YOUCAT quiz to focus on specific categories and difficulty levels',
     vi: 'Tùy chỉnh bài kiểm tra YOUCAT của bạn để tập trung vào các danh mục và mức độ khó cụ thể',
+  },
+  noMoreQuestions: {
+    en: 'No more questions available in this category.',
+    vi: 'Không còn câu hỏi nào trong danh mục này.',
+  },
+  noPreviousQuestion: {
+    en: 'No previous question available.',
+    vi: 'Không có câu hỏi trước đó.',
   },
   examSettings: {
     en: 'Exam Settings',
