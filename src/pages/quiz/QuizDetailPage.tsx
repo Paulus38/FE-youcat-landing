@@ -40,7 +40,7 @@ import {
   Close as CloseIcon,
 } from '@mui/icons-material';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
-import { questionApi } from '@services/questionService';
+import { questionApi } from '@/services/QuestionService';
 import { useLanguage } from '@context/LanguageContext';
 import { Question, QuestionDetailResponse } from '@/types/question';
 import giaoLy1 from '@/assets/images/question_backgrounds/giao-ly-1.jpg';

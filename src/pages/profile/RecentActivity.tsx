@@ -18,7 +18,7 @@ import {
 } from './types/RecentActivity.interface';
 import { useLanguage } from '@/context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
-import examService from '@/services/examService';
+import examService from '@/services/ExamService';
 import DialogResultDetail from './DialogResultDetail';
 import { fDateTime } from '@/utils/format-time';
 

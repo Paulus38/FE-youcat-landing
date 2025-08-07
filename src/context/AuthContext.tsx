@@ -5,9 +5,9 @@ import React, {
   useEffect,
   ReactNode,
 } from 'react';
-import authService from '../services/authService';
-import { API_BASE_URL } from '@/config/Api';
-import profileService from '@/services/profileService';
+import authService from '@services/AuthService';
+import { API_BASE_URL } from '@config/Api';
+import profileService from '@services/ProfileService';
 
 interface User {
   id?: number;

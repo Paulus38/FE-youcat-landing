@@ -3,9 +3,9 @@ import {
   ExamResponse,
   ExamSettings,
   PredefinedExamsResponse,
-} from '@/pages/exam/types/Exam.interface';
-import authService from './authService';
-import axiosInstance from '@/config/AxiosConfig';
+} from '@pages/exam/types/Exam.interface';
+import authService from '@services/AuthService';
+import axiosInstance from '@config/AxiosConfig';
 
 const GUEST_IDENTIFIER_COOKIE = 'exam_guest_identifier';
 

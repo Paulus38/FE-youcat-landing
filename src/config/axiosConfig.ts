@@ -1,7 +1,7 @@
 import axios from 'axios';
-import authService from '../services/authService';
-import { API_BASE_URL } from '@/config/api'; // Adjust the import path as necessary
-import { getCookie } from '@/services/cookieService';
+import authService from '@services/AuthService'; // Adjust the import path as necessary
+import { API_BASE_URL } from '@/config/Api'; // Adjust the import path as necessary
+import { getCookie } from '@/services/CookieService';
 
 const TOKEN_KEY = 't';
 const REFRESH_TOKEN = 'rt';

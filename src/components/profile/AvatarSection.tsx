@@ -1,25 +1,25 @@
 import React, { useState } from 'react';
-import { 
-  Box, 
-  Avatar, 
-  Typography, 
-  Button, 
+import {
+  Box,
+  Avatar,
+  Typography,
+  Button,
   IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   ImageList,
-  ImageListItem
+  ImageListItem,
 } from '@mui/material';
-import { 
-  Edit as EditIcon, 
+import {
+  Edit as EditIcon,
   Logout as LogoutIcon,
   Save as SaveIcon,
-  Close as CloseIcon
+  Close as CloseIcon,
 } from '@mui/icons-material';
 import { useLanguage } from '../../context/LanguageContext';
-import profileService, { ProfileData } from '../../services/profileService';
+import profileService from '@services/ProfileService';
 
 // Import all avatar images
 import avatar1 from '../../assets/images/avatar/avatar-1.webp';
@@ -47,6 +47,7 @@ import avatar22 from '../../assets/images/avatar/avatar-22.webp';
 import avatar23 from '../../assets/images/avatar/avatar-23.webp';
 import avatar24 from '../../assets/images/avatar/avatar-24.webp';
 import avatar25 from '../../assets/images/avatar/avatar-25.webp';
+import { ProfileData } from '@pages/profile/types/Profile.interface';
 
 // Define the avatar list
 const avatarList = [
@@ -74,7 +75,7 @@ const avatarList = [
   { id: 'avatar-22.webp', src: avatar22 },
   { id: 'avatar-23.webp', src: avatar23 },
   { id: 'avatar-24.webp', src: avatar24 },
-  { id: 'avatar-25.webp', src: avatar25 }
+  { id: 'avatar-25.webp', src: avatar25 },
 ];
 
 interface AvatarSectionProps {
@@ -84,11 +85,11 @@ interface AvatarSectionProps {
   onLogout: () => void;
 }
 
-const AvatarSection: React.FC<AvatarSectionProps> = ({ 
-  userData, 
-  accessToken, 
-  onAvatarUpdate, 
-  onLogout 
+const AvatarSection: React.FC<AvatarSectionProps> = ({
+  userData,
+  accessToken,
+  onAvatarUpdate,
+  onLogout,
 }) => {
   const { t } = useLanguage();
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
@@ -99,26 +100,27 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   const handleAvatarEditClick = () => {
     setAvatarDialogOpen(true);
   };
-  
+
   // Handle avatar selection
   const handleAvatarSelect = (avatarFileName: string) => {
     setSelectedAvatar(avatarFileName);
   };
-  
+
   // Handle avatar update
   const handleAvatarUpdate = async () => {
     if (!selectedAvatar || !accessToken) return;
-    
+
     setAvatarUpdateLoading(true);
     try {
-      await profileService.updateAvatar(accessToken, { avatar: selectedAvatar });
-      
+      await profileService.updateAvatar(accessToken, {
+        avatar: selectedAvatar,
+      });
+
       // Close dialog
       setAvatarDialogOpen(false);
-      
+
       // Call the parent update function
       onAvatarUpdate();
-      
     } catch (err) {
       console.error('Failed to update avatar:', err);
     } finally {
@@ -138,18 +140,19 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
             mx: 'auto',
             mb: 2,
             border: '4px solid white',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
           }}
-          src={userData.image ? 
-            // Find the avatar in the list and use its src
-            avatarList.find(avatar => avatar.id === userData.image)?.src :
-            undefined
+          src={
+            userData.image
+              ? // Find the avatar in the list and use its src
+                avatarList.find((avatar) => avatar.id === userData.image)?.src
+              : undefined
           }
         >
           {userData.name?.charAt(0)}
         </Avatar>
-        <IconButton 
-          size="small"
+        <IconButton
+          size='small'
           sx={{
             position: 'absolute',
             bottom: 10,
@@ -157,27 +160,27 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
             bgcolor: 'secondary.main',
             color: 'white',
             '&:hover': {
-              bgcolor: 'secondary.dark'
-            }
+              bgcolor: 'secondary.dark',
+            },
           }}
           onClick={handleAvatarEditClick}
         >
-          <EditIcon fontSize="small" />
+          <EditIcon fontSize='small' />
         </IconButton>
       </Box>
-      <Typography variant="h5" component="h1" fontWeight={600} gutterBottom>
+      <Typography variant='h5' component='h1' fontWeight={600} gutterBottom>
         {userData.name}
       </Typography>
-      <Typography variant="body1" color="text.secondary" gutterBottom>
+      <Typography variant='body1' color='text.secondary' gutterBottom>
         @{userData.username}
       </Typography>
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant='body2' color='text.secondary'>
         {userData.email}
       </Typography>
-      
+
       <Button
-        variant="outlined"
-        color="error"
+        variant='outlined'
+        color='error'
         startIcon={<LogoutIcon />}
         onClick={onLogout}
         sx={{ mt: 4 }}
@@ -186,31 +189,31 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
       </Button>
 
       {/* Avatar Selection Dialog */}
-      <Dialog 
-        open={avatarDialogOpen} 
+      <Dialog
+        open={avatarDialogOpen}
         onClose={() => setAvatarDialogOpen(false)}
-        maxWidth="md"
+        maxWidth='md'
         fullWidth
       >
         <DialogTitle>{t('selectAvatar')}</DialogTitle>
         <DialogContent>
           <ImageList cols={5} gap={8}>
             {avatarList.map((avatar) => (
-              <ImageListItem 
+              <ImageListItem
                 key={avatar.id}
                 onClick={() => handleAvatarSelect(avatar.id)}
-                sx={{ 
+                sx={{
                   cursor: 'pointer',
                   border: avatar.id === selectedAvatar ? '2px solid' : 'none',
                   borderColor: 'primary.main',
                   borderRadius: '4px',
-                  p: 0.5
+                  p: 0.5,
                 }}
               >
                 <img
                   src={avatar.src}
                   alt={`Avatar ${avatar.id}`}
-                  loading="lazy"
+                  loading='lazy'
                   style={{ borderRadius: '4px' }}
                 />
               </ImageListItem>
@@ -218,17 +221,17 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
           </ImageList>
         </DialogContent>
         <DialogActions>
-          <Button 
-            onClick={() => setAvatarDialogOpen(false)} 
-            color="inherit"
+          <Button
+            onClick={() => setAvatarDialogOpen(false)}
+            color='inherit'
             startIcon={<CloseIcon />}
           >
             {t('cancel')}
           </Button>
-          <Button 
-            onClick={handleAvatarUpdate} 
-            color="primary"
-            variant="contained"
+          <Button
+            onClick={handleAvatarUpdate}
+            color='primary'
+            variant='contained'
             startIcon={<SaveIcon />}
             disabled={!selectedAvatar || avatarUpdateLoading}
           >
@@ -240,4 +243,4 @@ const AvatarSection: React.FC<AvatarSectionProps> = ({
   );
 };
 
-export default AvatarSection; 
+export default AvatarSection;

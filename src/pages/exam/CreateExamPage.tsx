@@ -35,13 +35,12 @@ import {
   Help as HelpIcon,
   ArrowForward as ArrowForwardIcon,
   ArrowBack as ArrowBackIcon,
-  Assignment as AssignmentIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
-import examService from '@/services/examService';
+import examService from '@services/ExamService';
 import { useAuth } from '@context/AuthContext';
 import { useLanguage } from '@context/LanguageContext';
-import authService from '@/services/authService';
+import authService from '@services/AuthService';
 import { Book, ExamSettings, PredefinedExam } from './types/Exam.interface';
 import { categoryOptions, difficultyLevels } from './types/Exam.enum';
 import { TopicList } from './TopicList';

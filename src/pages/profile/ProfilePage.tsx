@@ -32,7 +32,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
-import profileService from '../../services/profileService';
+import profileService from '@services/ProfileService';
 import AvatarSection from '../../components/profile/AvatarSection';
 import YourAchievements from './YourAchievement';
 import RecentActivity from './RecentActivity';

@@ -19,7 +19,6 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useMemo } from 'react';
 import { ExamParticipant } from './types/ExamParticipants.interface';
 import { countCompletedDaysInLast7Days, fDate } from '@/utils/format-time';
-import dayjs from 'dayjs';
 import { calculateAchievements } from './utils';
 
 type Achievement = {

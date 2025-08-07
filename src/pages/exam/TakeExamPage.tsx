@@ -21,7 +21,6 @@ import {
   DialogActions,
   Alert,
   CircularProgress,
-  useTheme,
 } from '@mui/material';
 import {
   Timer as TimerIcon,
@@ -29,9 +28,9 @@ import {
   ArrowBack as PrevIcon,
   Flag as FlagIcon,
 } from '@mui/icons-material';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import examService from '@/services/examService';
-import { useLanguage } from '@/context/LanguageContext';
+import { useParams, useNavigate } from 'react-router-dom';
+import examService from '@services/ExamService';
+import { useLanguage } from '@context/LanguageContext';
 
 interface ExamAnswer {
   id: number;

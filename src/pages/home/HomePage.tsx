@@ -45,7 +45,7 @@ import {
   QuizQuestion,
   getRandomQuizQuestions,
 } from '@/mocks';
-import questionApi from '@/services/questionService';
+import questionApi from '@services/QuestionService';
 
 interface FeatureItem {
   titleKey: string;
