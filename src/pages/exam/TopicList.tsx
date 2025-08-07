@@ -19,7 +19,7 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 
 import { getExamBySetId, getExamSets } from '@services/ExamSetService';
-import { PredefinedExam } from './types/Exam.interface';
+import { PredefinedExam } from '@interfaces/Exam.interface';
 
 interface Topic {
   id: number;

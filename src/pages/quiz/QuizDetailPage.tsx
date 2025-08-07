@@ -42,7 +42,10 @@ import {
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import { questionApi } from '@/services/QuestionService';
 import { useLanguage } from '@context/LanguageContext';
-import { Question, QuestionDetailResponse } from '@/types/question';
+import {
+  Question,
+  QuestionDetailResponse,
+} from '@interfaces/Question.interface';
 import giaoLy1 from '@/assets/images/question_backgrounds/giao-ly-1.jpg';
 import giaoLy2 from '@/assets/images/question_backgrounds/giao-ly-2.jpg';
 import giaoLy3 from '@/assets/images/question_backgrounds/giao-ly-3.jpg';

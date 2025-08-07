@@ -1,11 +1,12 @@
+import authService from '@services/AuthService';
+import axiosInstance from '@config/AxiosConfig';
 import {
-  BooksResponse,
   ExamResponse,
   ExamSettings,
   PredefinedExamsResponse,
-} from '@pages/exam/types/Exam.interface';
-import authService from '@services/AuthService';
-import axiosInstance from '@config/AxiosConfig';
+} from '@interfaces/Exam.interface';
+import { BooksResponse } from '@interfaces/Book.interface';
+import { UserChooseAnswer } from '@interfaces/UserAnswer.interface';
 
 const GUEST_IDENTIFIER_COOKIE = 'exam_guest_identifier';
 
@@ -96,7 +97,7 @@ const examService = {
   // Submit exam answers
   submitExam: async (
     examId: string,
-    answers: { exam_question_id: number; selected_answer_id: number | null }[],
+    answers: UserChooseAnswer[],
     duration: number,
     participant_id?: number
   ) => {

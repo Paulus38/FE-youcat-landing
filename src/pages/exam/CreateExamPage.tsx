@@ -41,9 +41,10 @@ import examService from '@services/ExamService';
 import { useAuth } from '@context/AuthContext';
 import { useLanguage } from '@context/LanguageContext';
 import authService from '@services/AuthService';
-import { Book, ExamSettings, PredefinedExam } from './types/Exam.interface';
 import { categoryOptions, difficultyLevels } from './types/Exam.enum';
 import { TopicList } from './TopicList';
+import { ExamSettings, PredefinedExam } from '@interfaces/Exam.interface';
+import { Book } from '@interfaces/Book.interface';
 
 type ExamMode = 'predefined' | 'custom';
 

@@ -1,8 +1,8 @@
 import { sampleResultQuestions, Question } from '../data/examQuestions';
 
 export interface UserAnswer {
-  questionId: string;
-  optionId: string;
+  question_id: string;
+  option_id: string;
   isCorrect: boolean;
 }
 
@@ -47,8 +47,8 @@ export const generateRandomUserAnswers = (
     // If the answer is correct, use the correct option ID
     if (isCorrect) {
       return {
-        questionId: question.id,
-        optionId: question.correctOptionId,
+        question_id: question.id,
+        option_id: question.correctOptionId,
         isCorrect: true,
       };
     } else {
@@ -60,8 +60,8 @@ export const generateRandomUserAnswers = (
         wrongOptions[Math.floor(Math.random() * wrongOptions.length)];
 
       return {
-        questionId: question.id,
-        optionId: randomWrongOption.id,
+        question_id: question.id,
+        option_id: randomWrongOption.id,
         isCorrect: false,
       };
     }

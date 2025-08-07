@@ -1258,7 +1258,7 @@ const translations: Translations = {
     en: 'Filters',
     vi: 'Bộ Lọc',
   },
-  questionId: {
+  question_id: {
     en: 'Question ID',
     vi: 'ID Câu Hỏi',
   },

@@ -31,60 +31,8 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import examService from '@services/ExamService';
 import { useLanguage } from '@context/LanguageContext';
-
-interface ExamAnswer {
-  id: number;
-  order: number;
-  content: string;
-  code_option: string;
-}
-
-interface ExamQuestion {
-  id: number;
-  order: number;
-  content: string;
-  ExamAnswers: ExamAnswer[];
-}
-
-interface ExamParticipants {
-  id: number;
-}
-interface Book {
-  id: number;
-  name: string;
-}
-
-interface ExamType {
-  id: number;
-  name: string;
-}
-
-interface ExamData {
-  id: number;
-  title: string;
-  status: number;
-  user_id: number | null;
-  description: string | null;
-  duration: number; // in minutes
-  total_question: number;
-  User: any | null;
-  Book: Book;
-  ExamType: ExamType;
-  ExamQuestions: ExamQuestion[];
-  guest_identifier?: string;
-  ExamParticipants: ExamParticipants[];
-}
-
-interface ApiResponse {
-  statusCode: number;
-  message: string;
-  data: ExamData;
-}
-
-interface UserAnswer {
-  questionId: number;
-  optionId: number;
-}
+import { ApiExamResponse, ExamData } from '@interfaces/Exam.interface';
+import { UserAnswer, UserChooseAnswer } from '@interfaces/UserAnswer.interface';
 
 const TakeExamPage: React.FC = () => {
   const { examId } = useParams<{ examId: string }>();
@@ -95,7 +43,7 @@ const TakeExamPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [examData, setExamData] = useState<ExamData | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);
+  const [userAnswers, setUserAnswers] = useState<UserChooseAnswer[]>([]);
   const [remainingTime, setRemainingTime] = useState<number>(0);
   const [confirmSubmitOpen, setConfirmSubmitOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -110,7 +58,8 @@ const TakeExamPage: React.FC = () => {
 
   // Find user's answer for current question
   const currentAnswer = userAnswers.find(
-    (answer) => currentQuestion && answer.questionId === currentQuestion.id
+    (answer) =>
+      currentQuestion && answer.exam_question_id === currentQuestion.id
   );
 
   // Format remaining time
@@ -160,7 +109,7 @@ const TakeExamPage: React.FC = () => {
 
         // Fetch the exam data from the API
         const response = await examService.getExam(examId);
-        const apiResponse = response as unknown as ApiResponse;
+        const apiResponse = response as unknown as ApiExamResponse;
 
         if (apiResponse.statusCode === 200) {
           const examData = apiResponse.data;
@@ -169,8 +118,8 @@ const TakeExamPage: React.FC = () => {
 
           // Initialize user answers array
           const initialAnswers = examData.ExamQuestions.map((question) => ({
-            questionId: question.id,
-            optionId: 0, // Default to 0 (no selection)
+            exam_question_id: question.id,
+            selected_answer_id: 0, // Default to 0 (no selection)
           }));
 
           setUserAnswers(initialAnswers);
@@ -189,14 +138,14 @@ const TakeExamPage: React.FC = () => {
   }, [examId]);
 
   const handleAnswerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const optionId = parseInt(event.target.value);
+    const selected_answer_id = parseInt(event.target.value);
 
     if (!currentQuestion) return;
 
     setUserAnswers((prevAnswers) => {
       return prevAnswers.map((answer) => {
-        if (answer.questionId === currentQuestion.id) {
-          return { ...answer, optionId };
+        if (answer.exam_question_id === currentQuestion.id) {
+          return { ...answer, selected_answer_id };
         }
         return answer;
       });
@@ -226,11 +175,12 @@ const TakeExamPage: React.FC = () => {
   };
 
   const isAllQuestionsAnswered = () => {
-    return !userAnswers.some((answer) => answer.optionId === 0);
+    return !userAnswers.some((answer) => answer.selected_answer_id === 0);
   };
 
   const countAnsweredQuestions = () => {
-    return userAnswers.filter((answer) => answer.optionId !== 0).length;
+    return userAnswers.filter((answer) => answer.selected_answer_id !== 0)
+      .length;
   };
 
   const handleSubmitExam = async () => {
@@ -239,18 +189,16 @@ const TakeExamPage: React.FC = () => {
     try {
       setSubmitting(true);
 
-      // Prepare payload with all answers including those with optionId=0
+      // Prepare payload with all answers including those with option_id=0
       const payload = {
         id: examData.id,
         exam_id: examData.id,
         duration: examData.duration,
         ExamAnswers: userAnswers.map((answer) => ({
-          exam_question_id: answer.questionId,
-          selected_answer_id: answer.optionId || 0, // Use 0 for unanswered questions
+          exam_question_id: answer.exam_question_id,
+          selected_answer_id: answer.selected_answer_id || 0, // Use 0 for unanswered questions
         })),
       };
-
-      console.log('Submitting payload:', payload); // Debug log
 
       // The token is automatically added to headers in the examService.submitExam function
       // when the user is logged in through the createApiInstance() function
@@ -393,7 +341,7 @@ const TakeExamPage: React.FC = () => {
 
             <FormControl component='fieldset' sx={{ width: '100%' }}>
               <RadioGroup
-                value={currentAnswer?.optionId || ''}
+                value={currentAnswer?.selected_answer_id || ''}
                 onChange={handleAnswerChange}
               >
                 {currentQuestion.ExamAnswers.map((option) => (
@@ -410,7 +358,7 @@ const TakeExamPage: React.FC = () => {
                       '&:hover': {
                         bgcolor: 'action.hover',
                       },
-                      ...(currentAnswer?.optionId === option.id && {
+                      ...(currentAnswer?.selected_answer_id === option.id && {
                         bgcolor: 'primary.lighter',
                       }),
                     }}

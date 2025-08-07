@@ -1,34 +1,5 @@
-export interface Book {
-  id: number;
-  name: string;
-}
-
-export interface Part {
-  id: number;
-  name: string;
-  index_name: string;
-  Book: Book;
-}
-
-export interface Section {
-  id: number;
-  name: string;
-  index_name: string;
-  Part: Part;
-}
-
-export interface Chapter {
-  id: number;
-  name: string;
-  index_name: string;
-  Section: Section;
-}
-
-export interface Answer {
-  id: number;
-  name: string;
-  description?: string;
-}
+import { Answer } from './Answer.interface';
+import { Chapter } from './Chapter.interface';
 
 export interface Question {
   id: number;
@@ -77,22 +48,3 @@ export interface QuestionDetailResponse {
   message: string;
   data: Question;
 }
-
-export interface QuizAnswer {
-  id: number;
-  name: string;
-  is_correct: boolean;
-}
-
-export interface QuizQuestion {
-  id: number;
-  name: string;
-  description: string;
-  answers: QuizAnswer[];
-}
-
-export interface QuizQuestionResponse {
-  statusCode: number;
-  message: string;
-  data: QuizQuestion;
-} 

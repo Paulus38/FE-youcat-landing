@@ -33,7 +33,7 @@ export default defineConfig({
       '@services': path.resolve(__dirname, './src/services'),
       '@constants': path.resolve(__dirname, './src/constants'),
       '@styles': path.resolve(__dirname, './src/styles'),
-      '@types': path.resolve(__dirname, './src/types'),
+      '@interfaces': path.resolve(__dirname, './src/interfaces'),
       '@': path.resolve(__dirname, './src'),
     },
   },

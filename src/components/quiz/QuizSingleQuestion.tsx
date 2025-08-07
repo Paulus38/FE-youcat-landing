@@ -1,28 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Paper, 
-  Radio, 
-  RadioGroup, 
-  FormControlLabel, 
-  FormControl, 
-  Button, 
+import {
+  Box,
+  Typography,
+  Paper,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  Button,
   CircularProgress,
   Alert,
   Container,
   Card,
-  CardContent
+  CardContent,
 } from '@mui/material';
 import axios from 'axios';
 import { useLanguage } from '../../context/LanguageContext';
-import { QuizAnswer, QuizQuestion, QuizQuestionResponse } from '../../types/question';
+import { QuizQuestion, QuizQuestionResponse } from '@interfaces/Quiz.interface';
 
 interface QuizSingleQuestionProps {
-  questionId: number;
+  question_id: number;
 }
 
-const QuizSingleQuestion: React.FC<QuizSingleQuestionProps> = ({ questionId }) => {
+const QuizSingleQuestion: React.FC<QuizSingleQuestionProps> = ({
+  question_id,
+}) => {
   const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [question, setQuestion] = useState<QuizQuestion | null>(null);
@@ -37,13 +39,17 @@ const QuizSingleQuestion: React.FC<QuizSingleQuestionProps> = ({ questionId }) =
       setError(null);
       try {
         const response = await axios.get<QuizQuestionResponse>(
-          `${import.meta.env.VITE_API_URL}/questions/${questionId}/quiz`
+          `${import.meta.env.VITE_API_URL}/questions/${question_id}/quiz`
         );
-        
+
         if (response.data.statusCode === 200) {
           setQuestion(response.data.data);
         } else {
-          setError(response.data.message || t('errorLoadingQuestion') || 'Error loading question');
+          setError(
+            response.data.message ||
+              t('errorLoadingQuestion') ||
+              'Error loading question'
+          );
         }
       } catch (err) {
         console.error('Error fetching question:', err);
@@ -54,7 +60,7 @@ const QuizSingleQuestion: React.FC<QuizSingleQuestionProps> = ({ questionId }) =
     };
 
     fetchQuestion();
-  }, [questionId, t]);
+  }, [question_id, t]);
 
   const handleAnswerSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedAnswer(Number(event.target.value));
@@ -62,13 +68,15 @@ const QuizSingleQuestion: React.FC<QuizSingleQuestionProps> = ({ questionId }) =
 
   const handleSubmit = () => {
     if (selectedAnswer === null || !question) return;
-    
+
     // Find the correct answer
-    const correctAnswerObj = question.answers.find(answer => answer.is_correct);
+    const correctAnswerObj = question.answers.find(
+      (answer) => answer.is_correct
+    );
     if (correctAnswerObj) {
       setCorrectAnswer(correctAnswerObj.id);
     }
-    
+
     setIsSubmitted(true);
   };
 
@@ -87,78 +95,76 @@ const QuizSingleQuestion: React.FC<QuizSingleQuestionProps> = ({ questionId }) =
   }
 
   if (error) {
-    return (
-      <Alert severity="error">{error}</Alert>
-    );
+    return <Alert severity='error'>{error}</Alert>;
   }
 
   if (!question) {
     return (
-      <Alert severity="warning">{t('questionNotFound') || 'Question not found'}</Alert>
+      <Alert severity='warning'>
+        {t('questionNotFound') || 'Question not found'}
+      </Alert>
     );
   }
 
   return (
-    <Container maxWidth="md">
+    <Container maxWidth='md'>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2, mb: 4 }}>
-        <Typography variant="h5" component="h2" gutterBottom>
+        <Typography variant='h5' component='h2' gutterBottom>
           {question.name}
         </Typography>
-        
+
         {question.description && (
-          <Typography variant="body1" color="text.secondary" paragraph>
+          <Typography variant='body1' color='text.secondary' paragraph>
             {question.description}
           </Typography>
         )}
-        
-        <FormControl component="fieldset" sx={{ width: '100%', mt: 2 }}>
-          <RadioGroup 
-            value={selectedAnswer} 
-            onChange={handleAnswerSelect}
-          >
+
+        <FormControl component='fieldset' sx={{ width: '100%', mt: 2 }}>
+          <RadioGroup value={selectedAnswer} onChange={handleAnswerSelect}>
             {question.answers.map((answer) => (
-              <Card 
+              <Card
                 key={answer.id}
-                variant="outlined" 
-                sx={{ 
-                  mb: 2, 
+                variant='outlined'
+                sx={{
+                  mb: 2,
                   borderRadius: 2,
                   borderWidth: 2,
-                  borderColor: isSubmitted 
-                    ? answer.is_correct 
-                      ? 'success.main' 
-                      : selectedAnswer === answer.id && !answer.is_correct 
-                        ? 'error.main' 
-                        : 'divider'
-                    : selectedAnswer === answer.id 
-                      ? 'primary.main' 
-                      : 'divider',
-                  bgcolor: isSubmitted 
-                    ? answer.is_correct 
-                      ? 'success.light' 
-                      : selectedAnswer === answer.id && !answer.is_correct 
-                        ? 'error.light' 
-                        : 'background.paper'
+                  borderColor: isSubmitted
+                    ? answer.is_correct
+                      ? 'success.main'
+                      : selectedAnswer === answer.id && !answer.is_correct
+                      ? 'error.main'
+                      : 'divider'
+                    : selectedAnswer === answer.id
+                    ? 'primary.main'
+                    : 'divider',
+                  bgcolor: isSubmitted
+                    ? answer.is_correct
+                      ? 'success.light'
+                      : selectedAnswer === answer.id && !answer.is_correct
+                      ? 'error.light'
+                      : 'background.paper'
                     : 'background.paper',
                   transition: 'all 0.2s ease-in-out',
                   '&:hover': {
                     borderColor: isSubmitted ? undefined : 'primary.main',
                     bgcolor: isSubmitted ? undefined : 'action.hover',
-                  }
+                  },
                 }}
               >
                 <CardContent>
-                  <FormControlLabel 
-                    value={answer.id} 
-                    control={<Radio />} 
-                    label={answer.name} 
+                  <FormControlLabel
+                    value={answer.id}
+                    control={<Radio />}
+                    label={answer.name}
                     disabled={isSubmitted}
-                    sx={{ 
+                    sx={{
                       width: '100%',
                       '.MuiFormControlLabel-label': {
                         width: '100%',
-                        fontWeight: isSubmitted && answer.is_correct ? 'bold' : 'normal'
-                      }
+                        fontWeight:
+                          isSubmitted && answer.is_correct ? 'bold' : 'normal',
+                      },
                     }}
                   />
                 </CardContent>
@@ -166,18 +172,21 @@ const QuizSingleQuestion: React.FC<QuizSingleQuestionProps> = ({ questionId }) =
             ))}
           </RadioGroup>
         </FormControl>
-        
+
         {isSubmitted && (
           <Box mt={4}>
-            <Alert severity={selectedAnswer === correctAnswer ? "success" : "error"} sx={{ mb: 2 }}>
-              {selectedAnswer === correctAnswer 
-                ? (t('correctAnswer') || 'Correct answer!') 
-                : (t('incorrectAnswer') || 'Incorrect answer!')}
+            <Alert
+              severity={selectedAnswer === correctAnswer ? 'success' : 'error'}
+              sx={{ mb: 2 }}
+            >
+              {selectedAnswer === correctAnswer
+                ? t('correctAnswer') || 'Correct answer!'
+                : t('incorrectAnswer') || 'Incorrect answer!'}
             </Alert>
-            
-            <Button 
-              variant="contained" 
-              color="primary" 
+
+            <Button
+              variant='contained'
+              color='primary'
               onClick={handleTryAgain}
               fullWidth
             >
@@ -185,11 +194,11 @@ const QuizSingleQuestion: React.FC<QuizSingleQuestionProps> = ({ questionId }) =
             </Button>
           </Box>
         )}
-        
+
         {!isSubmitted && (
-          <Button 
-            variant="contained" 
-            color="primary" 
+          <Button
+            variant='contained'
+            color='primary'
             onClick={handleSubmit}
             disabled={selectedAnswer === null}
             fullWidth
@@ -203,4 +212,4 @@ const QuizSingleQuestion: React.FC<QuizSingleQuestionProps> = ({ questionId }) =
   );
 };
 
-export default QuizSingleQuestion; 
+export default QuizSingleQuestion;

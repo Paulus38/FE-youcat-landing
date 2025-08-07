@@ -34,6 +34,7 @@
       "@hooks/*": ["src/hooks/*"],
       "@config/*": ["src/config/*"],
       "@services/*": ["src/services/*"],
+      "@interfaces/*": ["src/interfaces/*"],
       "@/*": ["src/*"]
     }
   },

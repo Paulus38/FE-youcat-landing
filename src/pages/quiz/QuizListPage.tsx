@@ -45,9 +45,9 @@ import { useLanguage } from '@context/LanguageContext';
 import {
   Question,
   QuestionFilters,
-  QuestionSearchParams,
   QuestionResponse,
-} from '@/types/question';
+  QuestionSearchParams,
+} from '@interfaces/Question.interface';
 import { useNavigate } from 'react-router-dom';
 
 // Custom styled components
@@ -261,13 +261,13 @@ const QuizListPage: React.FC = () => {
   };
 
   // Navigate to question detail
-  const handleViewDetail = (questionId: number) => {
-    navigate(`/quiz/detail/${questionId}`);
+  const handleViewDetail = (question_id: number) => {
+    navigate(`/quiz/detail/${question_id}`);
   };
   // Start a quiz with this question
-  const handleStartQuiz = (questionId: number) => {
-    if (questionId) {
-      navigate(`/quiz/single-question/${questionId}`);
+  const handleStartQuiz = (question_id: number) => {
+    if (question_id) {
+      navigate(`/quiz/single-question/${question_id}`);
     }
   };
 
@@ -376,7 +376,7 @@ const QuizListPage: React.FC = () => {
           <Grid item xs={12} sm={6} md={2}>
             <TextField
               fullWidth
-              label={getTranslation('questionId')}
+              label={getTranslation('question_id')}
               name='question_id'
               value={filters.question_id}
               onChange={handleTextFilterChange}

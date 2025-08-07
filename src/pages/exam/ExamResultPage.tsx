@@ -42,84 +42,9 @@ import examService from '@services/ExamService';
 import { useAuth } from '@context/AuthContext';
 import { useLanguage } from '@context/LanguageContext';
 import { useBuild } from '@context/BuildContext';
-
-// New interfaces that match the API response structure
-interface ExamAnswer {
-  id: number;
-  content: string;
-  order: number;
-  code_option: string;
-  is_correct: number;
-  UserAnswers: any[];
-}
-
-interface ExamQuestion {
-  id: number;
-  content: string;
-  order: number;
-  description: string;
-  Question: {
-    id: number;
-    name: string;
-    description: string;
-    QuestionCategory?: any;
-  };
-  ExamAnswers: ExamAnswer[];
-}
-
-interface Book {
-  id: number;
-  name: string;
-}
-
-interface ApiExamResult {
-  id: number;
-  duration: number;
-  title: string;
-  description: string | null;
-  total_question: number;
-  Book: Book;
-  ExamQuestions: ExamQuestion[];
-  ExamParticipants: any[];
-}
-
-interface ApiResponse {
-  statusCode: number;
-  message: string;
-  data: ApiExamResult;
-}
-
-// For compatibility with the existing component
-interface UserAnswer {
-  questionId: string | number;
-  optionId: string | number;
-  isCorrect: boolean;
-}
-
-interface Option {
-  id: string | number;
-  text: string;
-}
-
-interface Question {
-  id: string | number;
-  text: string;
-  category?: string;
-  description?: string;
-  options: Option[];
-  correctOptionId: string | number;
-}
-
-interface ExamResult {
-  id: string | number;
-  title: string;
-  score: number;
-  totalQuestions: number;
-  correctAnswers: number;
-  totalTimeSpent: number;
-  questions: Question[];
-  userAnswers: UserAnswer[];
-}
+import { ApiExamResponseResult, ExamResult } from '@interfaces/Exam.interface';
+import { UserAnswerAtExamResult } from '@interfaces/UserAnswer.interface';
+import { ExamQuestionResult } from '@interfaces/ExamQuestion.interface';
 
 const ExamResultPage: React.FC = () => {
   const theme = useTheme();
@@ -161,12 +86,14 @@ const ExamResultPage: React.FC = () => {
   };
 
   // Transform API response to match the expected format
-  const transformApiResponse = (apiResponse: ApiResponse): ExamResult => {
+  const transformApiResponse = (
+    apiResponse: ApiExamResponseResult
+  ): ExamResult => {
     const apiData = apiResponse.data;
 
     // Calculate number of correct answers based on each question
-    const userAnswers: UserAnswer[] = [];
-    const questions: Question[] = apiData.ExamQuestions.map((eq) => {
+    const userAnswers: UserAnswerAtExamResult[] = [];
+    const questions: ExamQuestionResult[] = apiData.ExamQuestions.map((eq) => {
       // Find correct answer
       const correctAnswer = eq.ExamAnswers.find((a) => a.is_correct === 1);
       const correctOptionId = correctAnswer ? correctAnswer.id : 0;
@@ -182,8 +109,8 @@ const ExamResultPage: React.FC = () => {
 
       // Track user answer for this question
       userAnswers.push({
-        questionId: eq.id,
-        optionId: userOptionId,
+        question_id: eq.id,
+        option_id: userOptionId,
         isCorrect,
       });
 
@@ -264,16 +191,19 @@ const ExamResultPage: React.FC = () => {
     }
   };
 
-  const getUserAnswer = (questionId: string | number) => {
+  const getUserAnswer = (question_id: string | number) => {
     return examResult?.userAnswers.find(
-      (answer) => answer.questionId === questionId
+      (answer) => answer.question_id === question_id
     );
   };
 
-  const getOptionClass = (question: Question, optionId: string | number) => {
+  const getOptionClass = (
+    question: ExamQuestionResult,
+    option_id: string | number
+  ) => {
     const userAnswer = getUserAnswer(question.id);
 
-    if (optionId === question.correctOptionId) {
+    if (option_id === question.correctOptionId) {
       return {
         bgcolor: 'success.lighter',
         color: 'success.dark',
@@ -282,7 +212,7 @@ const ExamResultPage: React.FC = () => {
       };
     }
 
-    if (userAnswer?.optionId === optionId && !userAnswer.isCorrect) {
+    if (userAnswer?.option_id === option_id && !userAnswer.isCorrect) {
       return {
         bgcolor: 'error.lighter',
         color: 'error.dark',
@@ -676,7 +606,7 @@ const ExamResultPage: React.FC = () => {
                         </Tooltip>
                       )}
 
-                      {userAnswer?.optionId === option.id &&
+                      {userAnswer?.option_id === option.id &&
                         !userAnswer.isCorrect && (
                           <Tooltip title={t('incorrect')}>
                             <WrongIcon color='error' />
