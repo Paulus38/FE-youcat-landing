@@ -31,6 +31,7 @@ import {
 } from '@mui/icons-material';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import examService from '@/services/examService';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface ExamAnswer {
   id: number;
@@ -87,10 +88,9 @@ interface UserAnswer {
 }
 
 const TakeExamPage: React.FC = () => {
-  const theme = useTheme();
   const { examId } = useParams<{ examId: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
+  const { t } = useLanguage();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -100,12 +100,6 @@ const TakeExamPage: React.FC = () => {
   const [remainingTime, setRemainingTime] = useState<number>(0);
   const [confirmSubmitOpen, setConfirmSubmitOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
-  // Extract participant_id from URL query parameters
-  const searchParams = new URLSearchParams(location.search);
-  const participantId = searchParams.get('participant_id')
-    ? Number(searchParams.get('participant_id'))
-    : undefined;
 
   // Calculate progress percentage
   const progress = examData
@@ -298,7 +292,7 @@ const TakeExamPage: React.FC = () => {
           {error || 'There was a problem loading the exam. Please try again.'}
         </Alert>
         <Button variant='contained' onClick={() => navigate('/exam/create')}>
-          Create New Exam
+          {t('createNewExam')}
         </Button>
       </Container>
     );
@@ -348,8 +342,9 @@ const TakeExamPage: React.FC = () => {
 
         <Box sx={{ mb: 2 }}>
           <Typography variant='body2' color='text.secondary' sx={{ mb: 0.5 }}>
-            Question {currentQuestionIndex + 1} of{' '}
-            {examData.ExamQuestions.length}
+            {t('questionPagination')
+              .replace('{current}', (currentQuestionIndex + 1).toString())
+              .replace('{total}', examData.ExamQuestions.length.toString())}
           </Typography>
           <LinearProgress
             variant='determinate'
@@ -436,7 +431,7 @@ const TakeExamPage: React.FC = () => {
             onClick={handlePrevQuestion}
             disabled={currentQuestionIndex === 0}
           >
-            Previous
+            {t('previous')}
           </Button>
 
           {currentQuestionIndex < examData.ExamQuestions.length - 1 ? (
@@ -445,7 +440,7 @@ const TakeExamPage: React.FC = () => {
               endIcon={<NextIcon />}
               onClick={handleNextQuestion}
             >
-              Next
+              {t('next')}
             </Button>
           ) : (
             <Button
@@ -454,7 +449,7 @@ const TakeExamPage: React.FC = () => {
               startIcon={<FlagIcon />}
               onClick={handleOpenConfirmSubmit}
             >
-              Submit Exam
+              {t('finishExam')}
             </Button>
           )}
         </Box>
@@ -476,7 +471,8 @@ const TakeExamPage: React.FC = () => {
       >
         <Box>
           <Typography variant='body2' color='text.secondary'>
-            Answered: {countAnsweredQuestions()}/{examData.ExamQuestions.length}
+            {t('answered')}: {countAnsweredQuestions()}/
+            {examData.ExamQuestions.length}
           </Typography>
           <LinearProgress
             variant='determinate'
@@ -494,7 +490,7 @@ const TakeExamPage: React.FC = () => {
           onClick={handleOpenConfirmSubmit}
           disabled={submitting}
         >
-          Finish Exam
+          {submitting ? <CircularProgress size={24} /> : t('finishExam')}
         </Button>
       </Paper>
 
@@ -505,18 +501,18 @@ const TakeExamPage: React.FC = () => {
         aria-labelledby='alert-dialog-title'
         aria-describedby='alert-dialog-description'
       >
-        <DialogTitle id='alert-dialog-title'>{'Submit your exam?'}</DialogTitle>
+        <DialogTitle id='alert-dialog-title'>{t('confirmSubmit')}</DialogTitle>
         <DialogContent>
           <DialogContentText id='alert-dialog-description'>
             {isAllQuestionsAnswered()
-              ? "You've answered all questions. Are you sure you want to submit your exam?"
-              : `You've only answered ${countAnsweredQuestions()} out of ${
-                  examData.ExamQuestions.length
-                } questions. Are you sure you want to submit your exam?`}
+              ? t('confirmSubmitAll')
+              : t('confirmSubmitPartial')
+                  .replace('{answered}', countAnsweredQuestions().toString())
+                  .replace('{total}', examData.ExamQuestions.length.toString())}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseConfirmSubmit}>Cancel</Button>
+          <Button onClick={handleCloseConfirmSubmit}>{t('cancel')}</Button>
           <Button
             onClick={handleSubmitExam}
             autoFocus
@@ -524,7 +520,7 @@ const TakeExamPage: React.FC = () => {
             color='success'
             disabled={submitting}
           >
-            {submitting ? <CircularProgress size={24} /> : 'Submit Exam'}
+            {submitting ? <CircularProgress size={24} /> : t('submit')}
           </Button>
         </DialogActions>
       </Dialog>

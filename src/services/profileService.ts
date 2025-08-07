@@ -1,5 +1,5 @@
-import axiosInstance from '@/config/axiosConfig';
-import { API_BASE_URL, getUploadUrl } from '../config/api';
+import axiosInstance from '@/config/AxiosConfig';
+import { API_BASE_URL, getUploadUrl } from '../config/Api';
 import authService from './authService';
 import { ProfileResponse } from '@/pages/profile/types/Profile.interface';
 

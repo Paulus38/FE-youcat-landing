@@ -6,7 +6,7 @@ import React, {
   ReactNode,
 } from 'react';
 import authService from '../services/authService';
-import { API_BASE_URL } from '@/config/api';
+import { API_BASE_URL } from '@/config/Api';
 import profileService from '@/services/profileService';
 
 interface User {

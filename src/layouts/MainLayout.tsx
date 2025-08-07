@@ -94,7 +94,7 @@ const MainLayout: React.FC = () => {
   const menuItems: MenuItem[] = [
     {
       text: t('home'),
-      icon: <HomeIcon sx={{ color: theme.palette.primary.main }} />,
+      icon: <HomeIcon sx={{ color: theme.palette.info.main }} />,
       path: '/',
       translationKey: 'home',
     },
@@ -105,7 +105,7 @@ const MainLayout: React.FC = () => {
       translationKey: 'questionLibrary',
     },
     {
-      text: t('catechism'),
+      text: t('introCatechism'),
       icon: <BookIcon sx={{ color: theme.palette.success.main }} />,
       path: '/catechism',
       translationKey: 'catechism',

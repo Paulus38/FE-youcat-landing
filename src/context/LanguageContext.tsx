@@ -12,8 +12,8 @@ type Translations = {
 // Add all translations here
 const translations: Translations = {
   appName: {
-    en: 'Magisterium',
     vi: 'Giáo Lý',
+    en: 'Catechism',
   },
   delete: {
     en: 'Delete',
@@ -27,9 +27,9 @@ const translations: Translations = {
     en: 'Quizzes',
     vi: 'Bài Kiểm Tra',
   },
-  catechism: {
-    en: 'Catechism',
-    vi: 'Giáo Lý',
+  introCatechism: {
+    en: 'Introduction to Catechism',
+    vi: 'Giới Thiệu Giáo Lý',
   },
   myTrophies: {
     en: 'My Progress',
@@ -767,6 +767,30 @@ const translations: Translations = {
     en: 'Next',
     vi: 'Tiếp',
   },
+  finishExam: {
+    en: 'Finish Exam',
+    vi: 'Kết Thúc Bài Kiểm Tra',
+  },
+  confirmSubmitAll: {
+    en: `You've answered all questions. Are you sure you want to submit your exam?`,
+    vi: 'Bạn đã trả lời tất cả câu hỏi. Bạn có chắc chắn muốn nộp bài kiểm tra không?',
+  },
+  confirmSubmitPartial: {
+    en: `You've answered {answered} out of {total} questions. Are you sure you want to submit your exam?`,
+    vi: 'Bạn đã trả lời {answered} trên {total} câu hỏi. Bạn có chắc chắn muốn nộp bài kiểm tra không?',
+  },
+  createNewExam: {
+    en: 'Create New Exam',
+    vi: 'Tạo Bài Kiểm Tra Mới',
+  },
+  questionPagination: {
+    en: 'Question {current} of {total}',
+    vi: 'Câu Hỏi {current} trên {total}',
+  },
+  confirmSubmit: {
+    en: 'Submit your exam?',
+    vi: 'Bạn có chắc chắn muốn nộp bài kiểm tra?',
+  },
   shareResults: {
     en: 'Share Results',
     vi: 'Chia Sẻ Kết Quả',
@@ -859,6 +883,10 @@ const translations: Translations = {
   noAnswer: {
     en: 'No Answer',
     vi: 'Không Có Câu Trả Lời',
+  },
+  answered: {
+    en: 'Answered',
+    vi: 'Đã Trả Lời',
   },
   detailedResultsNotAvailable: {
     en: 'Detailed results not available',
