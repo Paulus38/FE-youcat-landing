@@ -12,15 +12,12 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
-import {
-  Activity,
-  RecentActivityProps,
-} from './types/RecentActivity.interface';
 import { useLanguage } from '@/context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import examService from '@/services/ExamService';
 import DialogResultDetail from './DialogResultDetail';
 import { fDateTime } from '@/utils/format-time';
+import { Activity, RecentActivityProps } from '@/interfaces/Profile.interface';
 
 const RecentActivity: React.FC<RecentActivityProps> = ({
   profileData,

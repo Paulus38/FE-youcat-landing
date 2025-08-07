@@ -3,6 +3,7 @@ export interface UserAnswer {
   exam_participant_id?: number;
   exam_question_id?: number;
   selected_answer_id?: number | null; // Optional, used for exam answers
+  is_correct?: boolean; // Optional, used for exam answers
 }
 
 export interface UserAnswerAtExamResult {

@@ -16,9 +16,9 @@ import {
   ListItemText,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { Activity } from './types/RecentActivity.interface';
 
 import { Close as CloseIcon } from '@mui/icons-material';
+import { Activity } from '@interfaces/Profile.interface';
 
 interface DiaLogResultDetailProps {
   resultDialogOpen: boolean;

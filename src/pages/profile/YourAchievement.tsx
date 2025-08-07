@@ -17,9 +17,12 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 import { useLanguage } from '@/context/LanguageContext';
 import { useMemo } from 'react';
-import { ExamParticipant } from './types/ExamParticipants.interface';
-import { countCompletedDaysInLast7Days, fDate } from '@/utils/format-time';
+import {
+  countCompletedDaysInLast7DaysOfWeek,
+  fDate,
+} from '@/utils/format-time';
 import { calculateAchievements } from './utils';
+import { ExamParticipant } from '@interfaces/ExamParticipant.interface';
 
 type Achievement = {
   key: string; //
@@ -42,7 +45,7 @@ const YourAchievements: React.FC<YourAchievementProps> = ({
 
   // Tính số ngày đã hoàn thành trong 7 ngày gần nhất
   const completedDays = useMemo(() => {
-    return countCompletedDaysInLast7Days(
+    return countCompletedDaysInLast7DaysOfWeek(
       examParticipants.map((ep) => fDate(ep.end_time)?.toString() || '')
     );
   }, [examParticipants]);

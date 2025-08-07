@@ -24,9 +24,9 @@ interface TopScore {
     email: string;
     image: string | null;
   };
-  ExamParticipants: Array<{
+  ExamParticipants: {
     score: number;
-  }>;
+  }[];
   totalScore: number;
 }
 

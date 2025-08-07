@@ -131,21 +131,27 @@ export function fToNow(date: DatePickerFormat) {
   return isValid ? dayjs(date).toNow(true) : 'Invalid time value';
 }
 /**
- * Đếm số ngày đã hoàn thành trong 7 ngày gần nhất (tính cả hôm nay).
+ * Đếm số ngày đã hoàn thành trong 7 ngày gần nhất.
  * @param daysCompleted - Mảng các ngày đã hoàn thành (ISO string: "2025-08-01", v.v.)
  * @return Số ngày đã hoàn thành trong 7 ngày gần nhất.
  */
-export const countCompletedDaysInLast7Days = (
+
+export const countCompletedDaysInLast7DaysOfWeek = (
   daysCompleted: string[]
 ): number => {
-  const today = dayjs().startOf('day'); // ví dụ: 2025-08-06T00:00:00.000
-  const sevenDaysAgo = today.subtract(6, 'day'); // tính cả hôm nay => 7 ngày
+  const today = dayjs().startOf('day');
+  const sevenDaysAgo = today.subtract(6, 'day'); // Bao gồm hôm nay => 7 ngày
 
-  return daysCompleted.filter((dayStr) => {
-    const completedDay = dayjs(dayStr).startOf('day');
-    return (
-      completedDay.isSame(today) ||
-      (completedDay.isAfter(sevenDaysAgo) && completedDay.isBefore(today))
-    );
-  }).length;
+  const uniqueDays = new Set(
+    daysCompleted
+      .map((dayStr) => dayjs(dayStr).startOf('day'))
+      .filter(
+        (completedDay) =>
+          completedDay.isSame(today) ||
+          (completedDay.isAfter(sevenDaysAgo) && completedDay.isBefore(today))
+      )
+      .map((day) => day.format('YYYY-MM-DD'))
+  );
+
+  return uniqueDays.size;
 };

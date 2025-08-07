@@ -37,9 +37,9 @@ import AvatarSection from '../../components/profile/AvatarSection';
 import YourAchievements from './YourAchievement';
 import RecentActivity from './RecentActivity';
 import AccountActions from './AccountActions';
-import { ProfileData, ProfileResponse } from './types/Profile.interface';
-import { ExamParticipant } from './types/ExamParticipants.interface';
 import { calculateAchievements } from './utils';
+import { ProfileData, ProfileResponse } from '@interfaces/Profile.interface';
+import { ExamParticipant } from '@interfaces/ExamParticipant.interface';
 
 interface TabPanelProps {
   children?: React.ReactNode;

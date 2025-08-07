@@ -849,8 +849,8 @@ const translations: Translations = {
     vi: 'Học Viên Chuyên Cần',
   },
   dedicatedStudentDesc: {
-    vi: 'Thực hiện 7 ngày liên tiếp kiểm tra',
-    en: 'Complete quizzes for 7 consecutive days',
+    en: 'Complete quizzes for 7 consecutive days in a week',
+    vi: 'Hoàn thành bài kiểm tra trong 7 ngày liên tiếp trong một tuần',
   },
   daysCompleted: {
     en: '{current}/{total} days completed',
