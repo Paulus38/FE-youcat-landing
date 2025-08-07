@@ -47,7 +47,7 @@ import avatar22 from '../../assets/images/avatar/avatar-22.webp';
 import avatar23 from '../../assets/images/avatar/avatar-23.webp';
 import avatar24 from '../../assets/images/avatar/avatar-24.webp';
 import avatar25 from '../../assets/images/avatar/avatar-25.webp';
-import { ProfileData } from '@pages/profile/types/Profile.interface';
+import { ProfileData } from '@interfaces/Profile.interface';
 
 // Define the avatar list
 const avatarList = [
