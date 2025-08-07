@@ -23,13 +23,11 @@ import {
   Menu as MenuIcon,
   Home as HomeIcon,
   Quiz as QuizIcon,
-  Person as PersonIcon,
   Login as LoginIcon,
   Logout as LogoutIcon,
   EmojiEvents as TrophyIcon,
   Stars as StarsIcon,
   Book as BookIcon,
-  History as HistoryIcon,
 } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import LanguageSwitcher from '@components/LanguageSwitcher';
@@ -118,13 +116,13 @@ const MainLayout: React.FC = () => {
       path: '/leaderboard',
       translationKey: 'leaderboard',
     },
-    {
-      text: t('profile'),
-      icon: <PersonIcon sx={{ color: theme.palette.info.main }} />,
-      path: '/profile',
-      requiresAuth: true,
-      translationKey: 'profile',
-    },
+    // {
+    //   text: t('profile'),
+    //   icon: <PersonIcon sx={{ color: theme.palette.info.main }} />,
+    //   path: '/profile',
+    //   requiresAuth: true,
+    //   translationKey: 'profile',
+    // },
   ];
 
   const handleNavigation = (path: string) => {

@@ -174,7 +174,7 @@ const YourAchievements: React.FC<YourAchievementProps> = ({
           <Button
             variant='contained'
             color='primary'
-            onClick={() => navigate('/quiz')}
+            onClick={() => navigate('/exam/create')}
           >
             {t('earnMoreAchievements')}
           </Button>

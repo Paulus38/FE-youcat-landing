@@ -1411,6 +1411,14 @@ const translations: Translations = {
     en: 'Please wait while we complete the process. You cannot perform any actions during this time.',
     vi: 'Vui lòng đợi trong khi chúng tôi hoàn thành quá trình. Bạn không thể thực hiện bất kỳ thao tác nào trong thời gian này.',
   },
+  retry: {
+    en: 'Retry',
+    vi: 'Thử lại',
+  },
+  submit: {
+    en: 'Submit',
+    vi: 'Gửi',
+  },
 };
 
 interface LanguageContextType {

@@ -332,7 +332,7 @@ const ProfilePage: React.FC = () => {
           onClick={() => window.location.reload()}
           sx={{ mt: 2 }}
         >
-          Retry
+          {t('retry')}
         </Button>
       </Container>
     );

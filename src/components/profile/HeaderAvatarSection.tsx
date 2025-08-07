@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Avatar, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
+import { Person as PersonIcon } from '@mui/icons-material';
 
 // Import all avatar images
 import avatar1 from '../../assets/images/avatar/avatar-1.webp';
@@ -107,7 +108,10 @@ const HeaderAvatarSection: React.FC<HeaderAvatarSectionProps> = ({
         }}
         src={avatarSrc}
       >
-        {!avatarSrc && (user?.name?.charAt(0) || 'U')}
+        {!avatarSrc &&
+          (user?.name?.charAt(0) || (
+            <PersonIcon sx={{ color: theme.palette.info.main }} />
+          ))}
       </Avatar>
       {showName && (
         <Box>

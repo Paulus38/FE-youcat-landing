@@ -42,7 +42,7 @@ const AccountActions: React.FC<Props> = ({ isGoogleAccount }) => {
         <List dense>
           <ListItem
             button
-            // disabled={isGoogleAccount}
+            disabled={isGoogleAccount}
             onClick={handleChangePassword}
           >
             <ListItemIcon>
