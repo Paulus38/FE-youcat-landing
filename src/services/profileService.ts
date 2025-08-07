@@ -1,6 +1,6 @@
-import axiosInstance from '@config/AxiosConfig';
-import { API_BASE_URL, getUploadUrl } from '@config/Api';
-import authService from '@services/AuthService';
+import axiosInstance from '@config/axiosConfig';
+import { API_BASE_URL, getUploadUrl } from '@config/api';
+import authService from '@services/authService';
 import { ProfileResponse } from '@interfaces/Profile.interface';
 
 // API response interface matching the raw data structure from backend

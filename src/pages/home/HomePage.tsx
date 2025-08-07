@@ -40,7 +40,7 @@ import {
   QuizQuestion,
   getRandomQuizQuestions,
 } from '@/mocks';
-import questionApi from '@services/QuestionService';
+import { questionApi } from '@services/questionService';
 
 interface FeatureItem {
   titleKey: string;

@@ -1,5 +1,5 @@
-import authService from '@services/AuthService';
-import axiosInstance from '@config/AxiosConfig';
+import authService from '@services/authService';
+import axiosInstance from '@config/axiosConfig';
 import {
   ExamResponse,
   ExamSettings,

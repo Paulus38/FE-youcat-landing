@@ -19,7 +19,7 @@ import {
   Close as CloseIcon,
 } from '@mui/icons-material';
 import { useLanguage } from '../../context/LanguageContext';
-import profileService from '@services/ProfileService';
+import profileService from '@services/profileService';
 
 // Import all avatar images
 import avatar1 from '../../assets/images/avatar/avatar-1.webp';

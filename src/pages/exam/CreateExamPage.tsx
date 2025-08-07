@@ -37,10 +37,10 @@ import {
   ArrowBack as ArrowBackIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
-import examService from '@services/ExamService';
+import examService from '@services/examService';
 import { useAuth } from '@context/AuthContext';
 import { useLanguage } from '@context/LanguageContext';
-import authService from '@services/AuthService';
+import authService from '@services/authService';
 import { categoryOptions, difficultyLevels } from './types/Exam.enum';
 import { TopicList } from './TopicList';
 import { ExamSettings, PredefinedExam } from '@interfaces/Exam.interface';

@@ -38,7 +38,7 @@ import {
   Link as RouterLink,
   useLocation,
 } from 'react-router-dom';
-import examService from '@services/ExamService';
+import examService from '@services/examService';
 import { useAuth } from '@context/AuthContext';
 import { useLanguage } from '@context/LanguageContext';
 import { useBuild } from '@context/BuildContext';

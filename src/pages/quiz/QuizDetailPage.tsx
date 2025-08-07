@@ -41,7 +41,7 @@ import {
   Link as RouterLink,
   useLocation,
 } from 'react-router-dom';
-import { questionApi } from '@/services/QuestionService';
+import { questionApi } from '@services/questionService';
 import { useLanguage } from '@context/LanguageContext';
 import {
   Question,

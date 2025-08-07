@@ -18,7 +18,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 
-import { getExamBySetId, getExamSets } from '@services/ExamSetService';
+import { getExamBySetId, getExamSets } from '@services/examSetService';
 import { PredefinedExam } from '@interfaces/Exam.interface';
 
 interface Topic {

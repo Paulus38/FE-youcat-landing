@@ -1,6 +1,6 @@
-import axiosInstance from '@config/AxiosConfig';
-import { API_BASE_URL } from '@config/Api';
-import { getCookie, removeCookie, setCookie } from '@/services/CookieService';
+import axiosInstance from '@config/axiosConfig';
+import { API_BASE_URL } from '@config/api';
+import { getCookie, removeCookie, setCookie } from '@services/cookieService';
 
 export interface LoginPayload {
   username: string;

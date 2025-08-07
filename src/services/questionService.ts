@@ -1,4 +1,4 @@
-import axiosInstance from '@config/AxiosConfig';
+import axiosInstance from '@config/axiosConfig';
 
 export const questionApi = {
   getQuestions: (params: any) => {

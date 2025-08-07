@@ -12,7 +12,7 @@ import {
   TableRow,
   CircularProgress,
 } from '@mui/material';
-import { questionApi } from '@/services/QuestionService';
+import { questionApi } from '@services/questionService';
 import { useLanguage } from '@/context/LanguageContext';
 
 interface TopScore {

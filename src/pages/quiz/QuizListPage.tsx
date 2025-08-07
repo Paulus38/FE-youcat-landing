@@ -40,7 +40,7 @@ import {
   LocalLibrary as LibraryIcon,
   Article as ArticleIcon,
 } from '@mui/icons-material';
-import { questionApi } from '@/services/QuestionService';
+import { questionApi } from '@services/questionService';
 import { useLanguage } from '@context/LanguageContext';
 import {
   Question,

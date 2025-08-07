@@ -14,7 +14,7 @@ import {
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
-import examService from '@services/ExamService';
+import examService from '@/services/examService';
 import DialogResultDetail from './DialogResultDetail';
 import { fDateTime } from '@/utils/format-time';
 import { Activity, RecentActivityProps } from '@/interfaces/Profile.interface';

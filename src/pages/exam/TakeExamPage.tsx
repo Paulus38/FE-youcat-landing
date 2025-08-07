@@ -29,7 +29,7 @@ import {
   Flag as FlagIcon,
 } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
-import examService from '@services/ExamService';
+import examService from '@services/examService';
 import { useLanguage } from '@context/LanguageContext';
 import { ApiExamResponse, ExamData } from '@interfaces/Exam.interface';
 import { UserAnswer, UserChooseAnswer } from '@interfaces/UserAnswer.interface';
