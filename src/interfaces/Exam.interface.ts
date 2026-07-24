@@ -36,6 +36,7 @@ export interface ExamResponse {
   data: {
     id: string | number;
     guest_identifier?: string;
+    exam_participant_id?: number;
     ExamParticipants?: Array<{
       id: number;
       user_id: number | null;

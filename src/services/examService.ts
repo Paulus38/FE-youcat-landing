@@ -10,6 +10,24 @@ import { UserChooseAnswer } from '@interfaces/UserAnswer.interface';
 
 const GUEST_IDENTIFIER_COOKIE = 'exam_guest_identifier';
 
+/** Guest-only: reuse cookie UUID or create one and persist on FE domain. */
+const ensureGuestIdentifier = (): string => {
+  const existing = authService.getGuestIdentifier();
+  if (existing) {
+    return existing;
+  }
+  const generated =
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `${Date.now()}-xxxx-4xxx-yxxx-xxxxxxxxxxxx`.replace(/[xy]/g, (c) => {
+          const r = (Math.random() * 16) | 0;
+          const v = c === 'x' ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+        });
+  authService.setCookieGuestIdentifier(generated);
+  return generated;
+};
+
 // Create API instance with auth token and guest identifier
 const createApiInstance = () => {
   const token = authService.getToken();
@@ -18,6 +36,7 @@ const createApiInstance = () => {
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   } else if (guestId) {
     authService.setCookieGuestIdentifier(guestId);
+    // Note: browsers ignore custom Cookie headers; guest id must go in request body.
     axiosInstance.defaults.headers.common[
       'Cookie'
     ] = `${GUEST_IDENTIFIER_COOKIE}=${guestId}`;
@@ -35,25 +54,24 @@ const examService = {
     // Extract guest_identifier if present
     let { guest_identifier, ...examSettings } = examData;
 
-    // Check if guest_identifier exists in cookies
-    const guestIdFromCookie = authService.getGuestIdentifier();
-    // If guest_identifier is not provided and exists in cookies, use it
-    // Otherwise, generate a new one
-    if (!guest_identifier && guestIdFromCookie) {
-      guest_identifier = guestIdFromCookie;
-    }
-
-    const payload = {
+    const payload: Record<string, unknown> = {
       ...examSettings,
     };
+
+    // Guest path only — do not alter authenticated create payload
+    if (!token) {
+      guest_identifier = guest_identifier || ensureGuestIdentifier();
+      authService.setCookieGuestIdentifier(guest_identifier);
+      payload.guest_identifier = guest_identifier;
+    }
 
     try {
       // Use different endpoints based on authentication status
       const endpoint = token ? '/exam/create/auth' : '/exam/create/guest';
       const response = await api.post<ExamResponse>(endpoint, payload);
 
-      // Store guest_identifier in cookie if present in response
-      if (response.data?.data?.guest_identifier) {
+      // Prefer server-issued guest id (keeps FE cookie in sync with BE)
+      if (!token && response.data?.data?.guest_identifier) {
         authService.setCookieGuestIdentifier(
           response.data.data.guest_identifier
         );
@@ -104,13 +122,24 @@ const examService = {
     const token = authService.getToken();
 
     try {
-      const payload = {
+      const payload: Record<string, unknown> = {
         id: participant_id || 0,
         user_id: token ? 0 : null,
         exam_id: Number(examId),
         duration,
         ExamAnswers: Array.isArray(answers) ? answers : [],
       };
+
+      // Guest path only: BE cannot rely on cross-domain cookies
+      if (!token) {
+        const guest_identifier = authService.getGuestIdentifier();
+        if (!guest_identifier) {
+          throw new Error(
+            'Guest identifier is missing. Please create the exam again.'
+          );
+        }
+        payload.guest_identifier = guest_identifier;
+      }
 
       // Use different endpoints based on authentication status
       const endpoint = token ? '/exam/submit/auth' : '/exam/submit/guest';
@@ -130,8 +159,9 @@ const examService = {
     const token = authService.getToken();
 
     try {
-      // Nếu đã login (có token), gọi API result thông thường
-      // Nếu chưa login (không có token) và có guest_identifier, gọi API guest_result
+      // Auth: JWT result API
+      // Guest: BE only reads httpOnly cookie exam_guest_identifier (no body/query).
+      // Local: use Vite proxy + VITE_API_URL=/api so that cookie is same-origin.
       const endpoint = token
         ? `/exam/${resultId}/result?participant=${participantId}`
         : `/exam/${resultId}/guest_result?participant=${participantId}`;
@@ -197,7 +227,14 @@ const examService = {
     guest_identifier?: string;
   }) => {
     try {
-      const response = await api.post('/exam_participant/guest/start', payload);
+      const guest_identifier =
+        payload.guest_identifier || ensureGuestIdentifier();
+      authService.setCookieGuestIdentifier(guest_identifier);
+
+      const response = await api.post('/exam_participant/guest/start', {
+        ...payload,
+        guest_identifier,
+      });
 
       // Store guest_identifier in cookie if present in response
       if (response.data?.data?.guest_identifier) {

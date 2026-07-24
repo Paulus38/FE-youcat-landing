@@ -45,6 +45,16 @@ export interface AuthResponse {
 const TOKEN_KEY = 't';
 const REFRESH_TOKEN_KEY = 'rt';
 const GUEST_IDENTIFIER_COOKIE = 'exam_guest_identifier';
+const GUEST_IDENTIFIER_STORAGE = 'exam_guest_identifier';
+
+const clearGuestIdentifierStorage = () => {
+  removeCookie(GUEST_IDENTIFIER_COOKIE);
+  try {
+    sessionStorage.removeItem(GUEST_IDENTIFIER_STORAGE);
+  } catch {
+    // ignore (SSR / private mode)
+  }
+};
 
 // Functions to handle token storage
 const setTokens = (accessToken: string, refreshToken: string) => {
@@ -54,8 +64,8 @@ const setTokens = (accessToken: string, refreshToken: string) => {
     'Authorization'
   ] = `Bearer ${accessToken}`;
   axiosInstance.defaults.headers.common['Cookie'] = `rt=${refreshToken}`;
-  // Set the guest identifier cookie if it doesn't exist
-  removeCookie(GUEST_IDENTIFIER_COOKIE);
+  // Logged-in users should not keep guest identity
+  clearGuestIdentifierStorage();
 };
 
 const getAccessToken = () => {
@@ -70,7 +80,7 @@ const clearTokens = () => {
   removeCookie(TOKEN_KEY);
   removeCookie(REFRESH_TOKEN_KEY);
   delete axiosInstance.defaults.headers.common.Authorization;
-  removeCookie(GUEST_IDENTIFIER_COOKIE);
+  clearGuestIdentifierStorage();
   axiosInstance.defaults.headers.common['Cookie'] = '';
 };
 
@@ -193,28 +203,35 @@ export const authService = {
     clearTokens();
   },
   getGuestIdentifier: () => {
-    const guestIdentifier = getCookie(GUEST_IDENTIFIER_COOKIE);
-    if (!guestIdentifier) {
+    const fromCookie = getCookie(GUEST_IDENTIFIER_COOKIE);
+    if (fromCookie) {
+      return fromCookie;
+    }
+    try {
+      return sessionStorage.getItem(GUEST_IDENTIFIER_STORAGE);
+    } catch {
       return null;
     }
-    return guestIdentifier;
   },
   setCookieGuestIdentifier: (guestId: string) => {
-    let guestIdFromCookie = authService.getGuestIdentifier();
-    if (guestIdFromCookie !== guestId) {
-      // Nếu guestId không giống với giá trị trong cookie, thì cập nhật cookie
+    const current = authService.getGuestIdentifier();
+    if (current !== guestId) {
       setCookie(GUEST_IDENTIFIER_COOKIE, guestId, {
-        path: '/', // phải luôn giống nhau
-        sameSite: 'lax', // hoặc 'lax', nhưng phải thống nhất
-        expires: new Date(Date.now() + 7 * 60 * 60 * 1000), // 7 hours in milliseconds
+        path: '/',
+        sameSite: 'lax',
+        expires: new Date(Date.now() + 7 * 60 * 60 * 1000),
       });
-      guestIdFromCookie = guestId;
+    }
+    try {
+      sessionStorage.setItem(GUEST_IDENTIFIER_STORAGE, guestId);
+    } catch {
+      // ignore
     }
     axiosInstance.defaults.headers.common[
       'Cookie'
-    ] = `${GUEST_IDENTIFIER_COOKIE}=${guestIdFromCookie}`;
+    ] = `${GUEST_IDENTIFIER_COOKIE}=${guestId}`;
 
-    return guestIdFromCookie;
+    return guestId;
   },
 };
 

@@ -161,7 +161,10 @@ const CreateExamPage: React.FC = () => {
       if (examMode === 'custom') {
         const response = await examService.createExam(examSettings);
         const examId = response.data.id;
-        const participantId = response.data.ExamParticipants?.[0]?.id;
+        // Auth create may return ExamParticipants; guest create returns exam_participant_id
+        const participantId =
+          response.data.ExamParticipants?.[0]?.id ??
+          response.data.exam_participant_id;
         navigate(
           `/exam/take/${examId}${
             participantId ? `?participant_id=${participantId}` : ''
@@ -187,7 +190,9 @@ const CreateExamPage: React.FC = () => {
       } else if (fromDiocese) {
         const response = await examService.createExam(examSettings);
         const examId = response.data.id;
-        const participantId = response.data.ExamParticipants?.[0]?.id;
+        const participantId =
+          response.data.ExamParticipants?.[0]?.id ??
+          response.data.exam_participant_id;
         navigate(
           `/exam/take/${examId}${
             participantId ? `?participant_id=${participantId}` : ''

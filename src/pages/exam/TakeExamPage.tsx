@@ -209,7 +209,6 @@ const TakeExamPage: React.FC = () => {
         examData.ExamParticipants[0].id
       );
 
-      // Navigate to results page with the result ID
       navigate(`/exam/result/${examData.id}`, {
         state: { participantId: examData.ExamParticipants[0].id },
       });
